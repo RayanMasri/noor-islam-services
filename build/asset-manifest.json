@@ -1,0 +1,27 @@
+{
+  "files": {
+    "main.css": "/static/css/main.7ee6bf87.css",
+    "main.js": "/static/js/main.1ee4f0f6.js",
+    "static/js/498.587cec44.chunk.js": "/static/js/498.587cec44.chunk.js",
+    "static/js/703.b505d939.chunk.js": "/static/js/703.b505d939.chunk.js",
+    "static/js/617.dafd467d.chunk.js": "/static/js/617.dafd467d.chunk.js",
+    "static/js/787.c4e7f8f9.chunk.js": "/static/js/787.c4e7f8f9.chunk.js",
+    "static/media/arabic.otf": "/static/media/arabic.972728a4d15979c86c1c.otf",
+    "static/media/background.png": "/static/media/background.83faee8365fed26fd5d1.png",
+    "static/media/background-minified.png": "/static/media/background-minified.ec1f97c1905ad89b3a84.png",
+    "static/media/vision.svg": "/static/media/vision.5c1d056a50c0f30fb15a401a3b2d9d02.svg",
+    "static/media/noor-islam-filled.svg": "/static/media/noor-islam-filled.12b04472efb65c6e4dcb80db97ec3712.svg",
+    "static/media/maarif-logo.svg": "/static/media/maarif-logo.5f1d8be4d5b951aaf3251f5947d02e80.svg",
+    "index.html": "/index.html",
+    "main.7ee6bf87.css.map": "/static/css/main.7ee6bf87.css.map",
+    "main.1ee4f0f6.js.map": "/static/js/main.1ee4f0f6.js.map",
+    "498.587cec44.chunk.js.map": "/static/js/498.587cec44.chunk.js.map",
+    "703.b505d939.chunk.js.map": "/static/js/703.b505d939.chunk.js.map",
+    "617.dafd467d.chunk.js.map": "/static/js/617.dafd467d.chunk.js.map",
+    "787.c4e7f8f9.chunk.js.map": "/static/js/787.c4e7f8f9.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.7ee6bf87.css",
+    "static/js/main.1ee4f0f6.js"
+  ]
+}

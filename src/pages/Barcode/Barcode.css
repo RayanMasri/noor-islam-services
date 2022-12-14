@@ -1,0 +1,228 @@
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+}
+
+/* * {
+	font-family: custom-arabic;
+} */
+
+#barcode-page #interactable-buttons > button:last-child {
+	margin: 0px 5px 0px 0px;
+}
+
+#barcode-page #interactable-buttons {
+	flex-direction: row;
+}
+
+#barcode-page #noor-islam-logo {
+	display: flex;
+}
+
+#barcode-page #info-area {
+	width: 100%;
+	max-width: 421px;
+}
+
+#barcode-page #error {
+	width: 100%;
+	max-width: 421px;
+	max-height: 100px;
+	margin-top: 5px;
+	overflow: hidden;
+	word-break: break-word;
+	text-overflow: ellipsis;
+}
+
+@media only screen and (max-width: 700px) {
+	#barcode-page #vision-logo {
+		display: none;
+	}
+
+	#barcode-page #noor-islam-logo {
+		display: none !important;
+	}
+}
+@media only screen and (min-width: 500px) {
+	#barcode-page #interactables {
+		flex-direction: row;
+	}
+
+	#barcode-page #main-button {
+		margin: 0px 15px 0px 0px;
+		width: 150px;
+	}
+}
+
+@media only screen and (max-width: 500px) {
+	#barcode-page #interactables {
+		flex-direction: column-reverse;
+		width: 100%;
+	}
+
+	#barcode-page #info-area {
+		width: 100%;
+		max-width: 500px;
+	}
+
+	#barcode-page #error {
+		width: 100%;
+		max-width: 500px;
+	}
+
+	/* #barcode-page #top {
+		padding-left: 25px;
+		padding-right: 25px;
+		box-sizing: border-box;
+	} */
+
+	#barcode-page #main-button {
+		margin: 15px 0px 0px 0px;
+		width: 100%;
+	}
+}
+
+@media only screen and (max-width: 250px) {
+	#barcode-page #interactable-buttons {
+		flex-direction: column;
+	}
+
+	#barcode-page #interactable-buttons > button:last-child {
+		margin: 5px 0px 0px 0px;
+	}
+}
+
+/* 
+@media only screen and (min-width: 768px) {
+	body {
+		background-color: red;
+	}
+}
+
+@media only screen and (min-width: 1024px) {
+	body {
+		background-color: green;
+	}
+} */
+
+#barcode-page #main-field {
+	width: 100%;
+	text-align: right;
+}
+
+#barcode-page #main-button {
+	height: 50px;
+	font-size: 25px;
+}
+
+#barcode-page .select-button {
+	background-color: white;
+	border: 1px solid #b2b9bc;
+	color: black;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	width: 100% !important;
+	margin-bottom: 10px;
+	padding-left: 5px !important;
+	padding-right: 10px !important;
+}
+
+#barcode-page #main {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: -1;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+}
+
+#barcode-page #title {
+	width: 100%;
+	color: #233262;
+	font-size: 50px;
+	font-family: segoeui;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	line-height: 50px;
+	margin-bottom: 10px;
+}
+
+#barcode-page #top {
+	width: 100%;
+	height: max-content;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	box-sizing: border-box;
+	padding-left: 3.125vw;
+	padding-right: 3.125vw;
+}
+
+#barcode-page #interactables {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+#barcode-page #interactable-buttons > button {
+	padding: 0px;
+	font-size: 18px;
+	font-family: Arial !important;
+	height: 35px;
+	padding-left: 15px;
+	padding-right: 15px;
+	width: 140px;
+}
+#barcode-page #interactable-buttons > button > div:first-child {
+	font-family: Arial !important;
+}
+#barcode-page #interactable-buttons > button:last-child > div:first-child {
+	font-family: Arial !important;
+	margin-right: 5px;
+	margin-top: 4px;
+}
+
+#barcode-page .MuiLoadingButton-root .MuiCircularProgress-root {
+	width: 32px !important;
+	height: 32px !important;
+	color: white !important;
+}
+
+#barcode-page .MuiMenuItem-root {
+	display: flex !important;
+	justify-content: center !important;
+}
+
+#barcode-page .MuiLoadingButton-loading {
+	background-color: rgb(94, 94, 94) !important;
+}
+
+/* #header {
+	position: fixed;
+	top: 0;
+	left: 0;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: flex-start;
+	padding-top: 5px;
+	box-sizing: border-box;
+	background: rgb(167, 198, 230);
+	background: linear-gradient(135deg, rgba(167, 198, 230, 1) -25%, rgba(255, 255, 255, 1) 100%);
+	width: 100%;
+	height: 100%;
+} */
+
+#barcode-page #header > div {
+	display: flex;
+	flex-direction: column;
+	width: max-content;
+	height: max-content;
+}

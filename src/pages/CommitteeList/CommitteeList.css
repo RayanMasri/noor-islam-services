@@ -1,0 +1,110 @@
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+}
+/* 
+<div className='student-table'>
+<div className='student-table-item student-table-header'>
+	<div>اسم الطالب</div>
+	<div>الفصل</div>
+</div>
+{'asdjioajsd'.split('').map(() => {
+	let a = ['أول ', 'ثاني ', 'ثالث '];
+	let b = ['أحمد خالد يوسف الدوسري', 'علي جعفر يوسف عللي', 'أبراهيم قلتلي محمد القحطاني'];
+	return (
+		<div className='student-table-item'>
+			<div>{b[Math.floor(Math.random() * 2) + 1]}</div>
+			<div>ثانوي{a[Math.floor(Math.random() * 2) + 1]}</div>
+		</div>
+	);
+})}
+</div> */
+
+#committee-list-page {
+	overflow-y: scroll;
+}
+
+#committee-list {
+	height: max-content;
+}
+
+.student-table-container {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	width: 100%;
+	color: #233262;
+}
+
+/* .student-table-container:not(:first-child) {
+} */
+
+.student-tables {
+	width: 100%;
+	height: max-content;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	margin-top: 10px;
+}
+
+.student-table {
+	width: 100%;
+	height: max-content;
+	border-radius: 20px;
+	box-sizing: border-box;
+
+	display: flex;
+	flex-direction: row-reverse;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	/* margin-bottom: 15px; */
+	margin: -10px 0 25px 0;
+
+	/* align-items: flex-end; */
+}
+
+.student-table > .student-table-item {
+	width: max-content;
+	height: max-content;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	border-radius: 20px;
+	padding: 10px;
+	margin-top: 10px;
+	margin-left: 10px;
+	color: #233262;
+}
+
+.student-table > .student-table-header {
+	color: #d68c45;
+}
+
+.student-table-container > .committee-name {
+	font-size: 36px;
+}
+.student-table-container > .committee-class {
+	font-size: 20px;
+	margin-bottom: 13px;
+}
+
+.committee-row {
+	width: 100%;
+	display: flex;
+	flex-direction: row-reverse;
+	/* justify-content: space-between; */
+	justify-content: flex-start;
+	align-items: flex-start;
+	margin-bottom: 20px;
+}
+
+.committee-row > .student-table-container:not(:first-child) {
+	/* ((1903 - 60 - 60) - (500 * 3)) / 2 */
+	margin-right: 141.5px; /* 150px */
+}
+
+/* .committee-row > .student-table-container:only-child {
+	align-self: flex-end;
+	margin-left: auto; 
+}*/

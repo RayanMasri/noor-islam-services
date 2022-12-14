@@ -1,0 +1,211 @@
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+}
+
+/* * {
+	font-family: custom-arabic;
+} */
+
+#committee-researcher-page #interactable-buttons {
+	flex-direction: row;
+}
+
+#committee-researcher-page #noor-islam-logo {
+	display: flex;
+}
+
+#committee-researcher-page #info-area {
+	width: 100%;
+	max-width: 421px;
+}
+
+#committee-researcher-page #error {
+	width: 100%;
+	max-width: 421px;
+	max-height: 100px;
+	margin-top: 5px;
+	overflow: hidden;
+	word-break: break-word;
+	text-overflow: ellipsis;
+}
+
+@media only screen and (max-width: 700px) {
+	#committee-researcher-page #vision-logo {
+		display: none;
+	}
+
+	#committee-researcher-page #noor-islam-logo {
+		display: none !important;
+	}
+}
+@media only screen and (min-width: 500px) {
+	#committee-researcher-page #interactables {
+		flex-direction: row;
+	}
+
+	#committee-researcher-page #main-button {
+		margin: 0px 15px 0px 0px;
+		width: 150px;
+	}
+
+	#committee-researcher-page #info-area {
+		width: 100%;
+		max-width: 500px;
+	}
+}
+
+@media only screen and (max-width: 500px) {
+	#committee-researcher-page #interactables {
+		flex-direction: column-reverse;
+		width: 100%;
+	}
+
+	#committee-researcher-page #top {
+		padding-left: 25px;
+		padding-right: 25px;
+		box-sizing: border-box;
+	}
+
+	#committee-researcher-page #error {
+		width: 100%;
+		max-width: 500px;
+	}
+
+	#committee-researcher-page #main-button {
+		margin: 15px 0px 0px 0px;
+		width: 100%;
+	}
+}
+
+@media only screen and (max-width: 250px) {
+	#committee-researcher-page #interactable-buttons {
+		flex-direction: column;
+	}
+
+	#committee-researcher-page #interactable-buttons > button:last-child {
+		margin: 5px 0px 0px 0px;
+	}
+}
+
+/* 
+@media only screen and (min-width: 768px) {
+	body {
+		background-color: red;
+	}
+}
+
+@media only screen and (min-width: 1024px) {
+	body {
+		background-color: green;
+	}
+} */
+
+#committee-researcher-page #main-field {
+	width: 100%;
+	text-align: right;
+}
+
+#committee-researcher-page #main-button {
+	height: 50px;
+	font-size: 25px;
+}
+
+#committee-researcher-page #main {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: -1;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+}
+
+#committee-researcher-page #title {
+	width: 100%;
+	color: #233262;
+	font-size: 50px;
+	font-family: segoeui;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	line-height: 50px;
+	margin-bottom: 10px;
+}
+
+#committee-researcher-page #top {
+	padding-left: 3.125vw;
+	padding-right: 3.125vw;
+	width: 100%;
+	height: max-content;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+#committee-researcher-page #interactables {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+#committee-researcher-page #interactable-buttons > button {
+	padding: 0px;
+	font-size: 18px;
+	font-family: Arial !important;
+	height: 35px;
+	padding-left: 15px;
+	padding-right: 15px;
+	width: 140px;
+}
+
+#committee-researcher-page #interactable-buttons > button > div:first-child {
+	font-family: Arial !important;
+}
+#committee-researcher-page #interactable-buttons > button:last-child > div:first-child {
+	font-family: Arial !important;
+	margin-right: 5px;
+	margin-top: 4px;
+}
+
+#committee-researcher-page .MuiLoadingButton-root .MuiCircularProgress-root {
+	width: 32px !important;
+	height: 32px !important;
+	color: white !important;
+}
+
+.MuiMenuItem-root {
+	display: flex !important;
+	justify-content: flex-end !important;
+}
+
+#committee-researcher-page .MuiLoadingButton-loading {
+	background-color: rgb(94, 94, 94) !important;
+}
+
+/* #header {
+	position: fixed;
+	top: 0;
+	left: 0;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: flex-start;
+	padding-top: 5px;
+	box-sizing: border-box;
+	background: rgb(167, 198, 230);
+	background: linear-gradient(135deg, rgba(167, 198, 230, 1) -25%, rgba(255, 255, 255, 1) 100%);
+	width: 100%;
+	height: 100%;
+} */
+
+#committee-researcher-page #header > div {
+	display: flex;
+	flex-direction: column;
+	width: max-content;
+	height: max-content;
+}
