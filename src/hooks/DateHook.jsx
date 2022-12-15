@@ -24,6 +24,10 @@ export default function useDateHook() {
 	let { gy, gm, gd } = toGregorian(1444, 5, 5);
 	// console.log(weekday_en[new Date(gy, gm - 1, gd).getDay()]);
 
+	const compareDatesByDay = (a, b) => {
+		return a.getDate() == b.getDate() && a.getMonth() == b.getMonth() && a.getYear() == b.getYear();
+	};
+
 	const objectFlip = (obj) => {
 		const ret = {};
 		Object.keys(obj).forEach((key) => {
@@ -82,5 +86,6 @@ export default function useDateHook() {
 		getHijriMonthIndex,
 		getHijriDate,
 		hijriMonthArToEn,
+		compareDatesByDay,
 	};
 }

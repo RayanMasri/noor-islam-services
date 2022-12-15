@@ -242,7 +242,7 @@ export default function Schedule() {
 
 	return (
 		<div id='schedule-page' className='App page'>
-			<div style={{ width: '100%', paddingLeft: '60px', paddingRight: '60px', boxSizing: 'border-box', zIndex: '5' }}>
+			<div style={{ width: '100%', paddingLeft: '3.125vw', paddingRight: '3.125vw', boxSizing: 'border-box', zIndex: '5' }}>
 				<Header />
 				<div id='schedule' style={{ marginTop: '30px' }}>
 					{getSemestersData().map(({ semester, months }) => {
