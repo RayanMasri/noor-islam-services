@@ -34,6 +34,7 @@ input::-webkit-inner-spin-button {
 	align-items: flex-end;
 	width: 100%;
 	color: #233262;
+	margin-bottom: 25px;
 }
 
 /* .student-table-container:not(:first-child) {
@@ -48,45 +49,8 @@ input::-webkit-inner-spin-button {
 	margin-top: 10px;
 }
 
-.student-table {
-	width: 100%;
-	height: max-content;
-	border-radius: 20px;
-	box-sizing: border-box;
-
-	display: flex;
-	flex-direction: row-reverse;
-	flex-wrap: wrap;
-	justify-content: flex-start;
-	/* margin-bottom: 15px; */
-	margin: -10px 0 25px 0;
-
-	/* align-items: flex-end; */
-}
-
-.student-table > .student-table-item {
-	width: max-content;
-	height: max-content;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	border-radius: 20px;
-	padding: 10px;
-	margin-top: 10px;
-	margin-left: 10px;
-	color: #233262;
-}
-
 .student-table > .student-table-header {
 	color: #d68c45;
-}
-
-.student-table-container > .committee-name {
-	font-size: 36px;
-}
-.student-table-container > .committee-class {
-	font-size: 20px;
-	margin-bottom: 13px;
 }
 
 .committee-row {
@@ -108,3 +72,124 @@ input::-webkit-inner-spin-button {
 	align-self: flex-end;
 	margin-left: auto; 
 }*/
+
+.student-table > .student-table-item {
+	width: max-content;
+	height: max-content;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	border-radius: 20px;
+	margin-top: 10px;
+	margin-left: 10px;
+	padding: 10px;
+	color: #233262;
+}
+
+/* <div className='student-table-item-name' style={{ fontSize: '38px' }}>
+{name.split(' ')[0]}
+</div>
+<div
+className='student-table-item-family'
+style={{
+	fontSize: '20px',
+}}
+>
+{name.split(' ').slice(1).join(' ')}
+</div>
+<Divider
+className='student-table-item-divider'
+style={{
+	backgroundColor: 'gray',
+	margin: '10px 0px 10px 0px',
+}}
+></Divider>
+<div
+className='student-table-item-class'
+style={{
+	fontSize: '14px',
+}}
+>
+{classyear}
+</div> */
+
+.student-table-item-name {
+	font-size: 38px;
+}
+
+.student-table-item-family {
+	font-size: 20px;
+}
+
+.student-table-item-class {
+	font-size: 14px;
+}
+
+.student-table-item-divider {
+	width: calc(100% + 20px);
+	margin: 10px 0px 10px 0px !important;
+}
+
+.student-table-container > .committee-name {
+	font-size: 36px;
+}
+.student-table-container > .committee-class {
+	font-size: 20px;
+	margin-bottom: 13px;
+}
+
+.student-table {
+	width: 100%;
+	height: max-content;
+	border-radius: 20px;
+	box-sizing: border-box;
+
+	display: flex;
+	flex-direction: row-reverse;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	margin: -10px 0 0 0;
+}
+
+@media only screen and (max-width: 1300px) {
+	.student-table-container {
+		margin-bottom: 1.92vw;
+	}
+
+	.student-table > .student-table-item {
+		padding: 0.76vw;
+		border-radius: 1.53vw;
+		margin: 0.76vw 0px 0px 0.76vw;
+	}
+
+	.student-table-item-name {
+		font-size: 2.92vw;
+	}
+
+	.student-table-item-family {
+		font-size: 1.53vw;
+	}
+
+	.student-table-item-class {
+		font-size: 1.07vw;
+	}
+
+	.student-table-item-divider {
+		width: calc(100% + 0.76vw * 2);
+		margin: 0.76vw 0px 0.76vw 0px !important;
+	}
+}
+
+@media only screen and (max-width: 800px) {
+	.student-table-item-name {
+		font-size: 23.36px;
+	}
+
+	.student-table-item-family {
+		font-size: 12.24px;
+	}
+
+	.student-table-item-class {
+		font-size: 8.56px;
+	}
+}

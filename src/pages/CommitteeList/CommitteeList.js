@@ -259,7 +259,7 @@ export default function CommitteeList() {
 			})}
 		>
 			<div id='committee-list-page' className='App page'>
-				<div style={{ height: '100%', width: '100%', paddingLeft: '60px', paddingRight: '60px', boxSizing: 'border-box', zIndex: '5' }}>
+				<div style={{ height: '100%', width: '100%', paddingLeft: '3.125vw', paddingRight: '3.125vw', boxSizing: 'border-box', zIndex: '5' }}>
 					{/* <div style={{ height: '100%', width: '100%', boxSizing: 'border-box', zIndex: '5' }}> */}
 					<Header />
 					<div id='committee-list' style={{ marginTop: '30px' }}>
@@ -313,28 +313,15 @@ export default function CommitteeList() {
 															border: '1px solid gray',
 														}}
 													>
-														<div style={{ fontSize: '38px' }}>{name.split(' ')[0]}</div>
-														<div
-															style={{
-																fontSize: '20px',
-															}}
-														>
-															{name.split(' ').slice(1).join(' ')}
-														</div>
+														<div className='student-table-item-name'>{name.split(' ')[0]}</div>
+														<div className='student-table-item-family'>{name.split(' ').slice(1).join(' ')}</div>
 														<Divider
+															className='student-table-item-divider'
 															style={{
-																width: 'calc(100% + 20px)',
 																backgroundColor: 'gray',
-																margin: '10px 0px 10px 0px',
 															}}
 														></Divider>
-														<div
-															style={{
-																fontSize: '14px',
-															}}
-														>
-															{classyear}
-														</div>
+														<div className='student-table-item-class'>{classyear}</div>
 													</div>
 												);
 											})}
