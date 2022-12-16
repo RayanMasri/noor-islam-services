@@ -30,7 +30,7 @@ export default function ProductCard(props) {
 				}}
 				className='product-card-name'
 			>
-				أدوات بوابة المعارف التعليمية
+				{props.title}
 			</div>
 
 			<Divider
@@ -46,26 +46,24 @@ export default function ProductCard(props) {
 					textAlign: 'right',
 					width: '100%',
 				}}
-				className='product-card-info'
+				className={`product-card-info${props.language == 'en' ? ' product-card-info-en' : ''}`}
 			>
-				<div className='product-card-info-bulletpoint'>
-					<svg>
-						<circle cx='50%' cy='50%' r='50%' fill='black'></circle>
-					</svg>
-					<div>إعادة حل الواجبات بترتيب أسئلة مختلف في حدود زمنية قابلة للتعديل</div>
-				</div>
-				<div className='product-card-info-bulletpoint'>
-					<svg>
-						<circle cx='50%' cy='50%' r='50%' fill='black'></circle>
-					</svg>
-					<div>تنزيل عدة مستندات للواجبات في وقت واحد</div>
-				</div>
-				<div className='product-card-info-bulletpoint'>
-					<svg>
-						<circle cx='50%' cy='50%' r='50%' fill='black'></circle>
-					</svg>
-					<div>إنشاء واجبات مخصصة ومشاركتها</div>
-				</div>
+				{props.bulletpoints.map((info) => {
+					return (
+						<div
+							className={`product-card-info-bulletpoint${props.language == 'en' ? ' product-card-info-bulletpoint-en' : ''}`}
+							style={{
+								flexDirection: props.language == 'ar' ? 'row-reverse' : 'row',
+								textAlign: props.language == 'ar' ? 'right' : 'left',
+							}}
+						>
+							<svg>
+								<circle cx='50%' cy='50%' r='50%' fill='black'></circle>
+							</svg>
+							<div>{info}</div>
+						</div>
+					);
+				})}
 			</div>
 
 			<Divider
@@ -97,19 +95,21 @@ export default function ProductCard(props) {
 						style={{
 							position: 'absolute',
 							top: 0,
-							left: 0,
 							height: '100%',
 							display: 'flex',
 							justifyContent: 'center',
 							alignItems: 'center',
+
 							paddingLeft: '15px',
+							left: 0,
 						}}
+						className={props.language == 'ar' ? 'product-lock-icon-holder' : 'product-lock-icon-holder-en'}
 					>
 						<LockIcon className='product-lock-icon' sx={{ color: 'black' }}></LockIcon>
 					</div>
 
-					<div style={{ color: '#A45000', fontFamily: 'segoeui' }} className='product-card-button-text'>
-						قريبًا في متجر كروم الالكتروني
+					<div style={{ color: '#A45000', fontFamily: 'segoeui', textTransform: 'none' }} className='product-card-button-text'>
+						{props.button}
 					</div>
 				</Button>
 			</div>

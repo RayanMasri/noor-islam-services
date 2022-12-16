@@ -63,16 +63,14 @@ export default function Card(props) {
 				style={{
 					width: '100%',
 					backgroundColor: 'white',
-
 					boxSizing: 'border-box',
 					fontFamily: 'segoeui',
 					display: 'flex',
 					flexDirection: 'column',
-					alignItems: 'flex-end',
 					justifyContent: 'flex-start',
 					position: 'relative',
 				}}
-				className='card-info-holder'
+				className={props.language == 'ar' ? 'card-info-holder' : 'card-info-holder-en'}
 			>
 				<div className='info-title'>{props.title}</div>
 				<div style={{}} className='description'>
@@ -82,10 +80,9 @@ export default function Card(props) {
 				<IconButton
 					style={{
 						position: 'absolute',
-						left: 0,
 						bottom: 0,
-						margin: '0px 0px 5px 5px',
 					}}
+					className={props.language == 'ar' ? 'card-arrow-button' : 'card-arrow-button-en'}
 					onClick={props.onClick}
 				>
 					<ArrowBackIcon

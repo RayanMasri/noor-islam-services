@@ -6,6 +6,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import MenuIcon from '@mui/icons-material/Menu';
 import PublicIcon from '@mui/icons-material/Public';
 import { useMainContext } from 'contexts/MainContext.jsx';
+// TODO: remove main context if unnecessary
 
 import { useNavigate } from 'react-router-dom';
 
@@ -99,7 +100,8 @@ export default function Header(props) {
 					<SelectMenu
 						anchor={languageAnchor.current}
 						open={state.language}
-						selected={main.language}
+						// selected={main.language}
+						selected={props.language}
 						onClose={() => setState({ ...state, language: false })}
 						onChange={(id) => {
 							setState({
@@ -110,6 +112,8 @@ export default function Header(props) {
 								...main,
 								language: id,
 							});
+
+							props.onLanguageChange(id);
 						}}
 						options={Object.entries(LANGUAGES).map(([key, value]) => {
 							return {
@@ -127,7 +131,7 @@ export default function Header(props) {
 								backgroundColor: 'white',
 								borderRadius: '5px',
 								display: 'flex',
-								flexDirection: main.language != 'ar' ? 'row' : 'row-reverse',
+								flexDirection: props.language != 'ar' ? 'row' : 'row-reverse',
 								justifyContent: 'space-between',
 								alignItems: 'center',
 								color: '#243162',
@@ -139,13 +143,13 @@ export default function Header(props) {
 							<div
 								style={{
 									display: 'flex',
-									flexDirection: main.language != 'ar' ? 'row' : 'row-reverse',
+									flexDirection: props.language != 'ar' ? 'row' : 'row-reverse',
 									justifyContent: 'space-between',
 									alignItems: 'center',
 								}}
 							>
 								<PublicIcon sx={{ color: '#243162', mx: '5px' }} />
-								<div style={{ fontFamily: 'segoeui', color: '#243162', textTransform: 'none' }}>{LANGUAGES[main.language]}</div>
+								<div style={{ fontFamily: 'segoeui', color: '#243162', textTransform: 'none' }}>{LANGUAGES[props.language]}</div>
 							</div>
 							<KeyboardArrowDownIcon />
 						</Button>

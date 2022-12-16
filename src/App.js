@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import 'App.css';
 // import { useMainContext } from './contexts/MainContext.jsx';
@@ -9,6 +9,8 @@ import { IconButton } from '@mui/material';
 import Card from 'components/Card.js';
 import ProductCard from 'components/ProductCard.js';
 import SocialLink from 'components/SocialLink.js';
+
+import useLocaleHook from 'hooks/LocaleHook.js';
 
 // provide better error by  using errorelement on route (react-router-dom ) for debugging on other devices
 // for rtl, create different components, one for rtl and one for ltr
@@ -30,12 +32,31 @@ import SocialLink from 'components/SocialLink.js';
 
 export default function App() {
 	const navigate = useNavigate();
+	const [state, setState] = useState({
+		language: localStorage.getItem('page-locale') || 'ar',
+	});
+	const { switchLocale, getLocaleKey } = useLocaleHook();
+
+	const onLanguageChange = (lang) => {
+		localStorage.setItem('page-locale', lang);
+
+		setState({
+			...state,
+			language: lang,
+		});
+		switchLocale(lang, '/');
+	};
+
+	useEffect(() => {
+		switchLocale(state.language, '/');
+	}, []);
+
 	// let [main, setMain] = useMainContext();
 
 	return (
 		<div id='landing-page' className='page'>
 			<div className='header-holder' style={{ width: '100%', boxSizing: 'border-box' }}>
-				<Header />
+				<Header onLanguageChange={onLanguageChange} language={state.language} />
 
 				<div className='title-container'>
 					<div
@@ -43,20 +64,29 @@ export default function App() {
 							color: '#233262',
 							fontFamily: 'segoeui',
 							height: 'max-content',
+							justifyContent: state.language == 'ar' ? 'flex-end' : 'flex-start',
 						}}
 						className='maintitle title'
 					>
-						<div>
+						<div
+							data-locale-key='landing-title'
+							style={{
+								textAlign: state.language == 'ar' ? 'right' : 'left',
+							}}
+						>
 							الخدمات الرقمية لمدارس
 							<br />
 							نور الإسلام الأهلية القسم الثانوي
 						</div>
 					</div>
 					<div
+						data-locale-key='landing-sub-title'
 						style={{
 							color: '#233262',
 							fontFamily: 'segoeui',
 							height: 'max-content',
+							textAlign: state.language == 'ar' ? 'right' : 'left',
+							justifyContent: state.language == 'ar' ? 'flex-end' : 'flex-start',
 						}}
 						className='subtitle title'
 					>
@@ -78,6 +108,7 @@ export default function App() {
 				}}
 			>
 				<div
+					data-locale-key='landing-services'
 					style={{
 						fontSize: '30px',
 						fontFamily: 'custom-arabic',
@@ -94,6 +125,8 @@ export default function App() {
 						paddingBottom: '30px',
 						width: '100%',
 						height: 'max-content',
+						flexDirection: state.language == 'ar' ? 'row-reverse' : 'row',
+
 						// display: 'flex',
 						// justifyContent: 'center',
 						// flexDirection: 'column',
@@ -101,34 +134,38 @@ export default function App() {
 					}}
 				>
 					<Card
-						showcase={require('./icons/barcode-showcase.svg').default}
-						title='الحصول على بطاقة الباركود'
-						description='قم بإنشاء الرمز الشريطي الخاص بك وطباعته فقط عن طريق إدخال رقم الهوية الخاص بك'
+						showcase={require(state.language == 'ar' ? './icons/barcode-showcase.svg' : './icons/barcode-showcase-en.svg').default}
+						title={getLocaleKey(state.language, '/', 'landing-showcase-barcode-title')}
+						description={getLocaleKey(state.language, '/', 'landing-showcase-barcode-description')}
 						onClick={() => navigate('/barcode')}
 						className='service-card'
+						language={state.language}
 					/>
 
 					<Card
-						showcase={require('./icons/committee-showcase.svg').default}
-						title='تعرف على معلومات لجنتك'
-						description='قم بعرض وطباعة جميع المعلومات المتعلقة باللجنة عن طريق إدخال رقم هويتك'
+						showcase={require(state.language == 'ar' ? './icons/committee-showcase.svg' : './icons/committee-showcase-en.svg').default}
+						title={getLocaleKey(state.language, '/', 'landing-showcase-committee-researcher-title')}
+						description={getLocaleKey(state.language, '/', 'landing-showcase-committee-researcher-description')}
 						onClick={() => navigate('/committee-researcher')}
 						className='service-card'
+						language={state.language}
 					/>
 					<Card
-						showcase={require('./icons/barcode-showcase.svg').default}
-						title='عرض قائمة طلاب اللجنة'
-						description='عرض القائمة الكاملة للطلاب في كل لجنة أو منطقة مع إمكانات البحث'
+						showcase={require(state.language == 'ar' ? './icons/committee-list-showcase.svg' : './icons/committee-list-showcase-en.svg').default}
+						title={getLocaleKey(state.language, '/', 'landing-showcase-committee-list-title')}
+						description={getLocaleKey(state.language, '/', 'landing-showcase-committee-list-description')}
 						onClick={() => navigate('/committee-list')}
 						className='service-card'
+						language={state.language}
 					/>
 
 					<Card
-						showcase={require('./icons/schedule-showcase.svg').default}
-						title='تعرف على التقويم الدراسي'
-						description='عرض الجدول الزمني الكامل لهذا العام بما في ذلك إجازات الأسبوع القصيرة والأعياد '
+						showcase={require(state.language == 'ar' ? './icons/schedule-showcase.svg' : './icons/schedule-showcase-en.svg').default}
+						title={getLocaleKey(state.language, '/', 'landing-showcase-schedule-title')}
+						description={getLocaleKey(state.language, '/', 'landing-showcase-schedule-description')}
 						onClick={() => navigate('/schedule')}
 						className='service-card'
+						language={state.language}
 					/>
 					{/* <div>
 						<Card
@@ -187,6 +224,7 @@ export default function App() {
 						marginTop: '10px',
 						marginBottom: '10px',
 					}}
+					data-locale-key='landing-other-products'
 				>
 					منتجات أخرى
 				</div>
@@ -199,8 +237,20 @@ export default function App() {
 					}}
 					className='product-cards'
 				>
-					<ProductCard className='product-card' />
-					<ProductCard className='product-card' />
+					<ProductCard
+						className='product-card'
+						title={getLocaleKey(state.language, '/', 'landing-product-first-title')}
+						bulletpoints={getLocaleKey(state.language, '/', 'landing-product-first-bulletpoints')}
+						button={getLocaleKey(state.language, '/', 'landing-product-first-button')}
+						language={state.language}
+					/>
+					<ProductCard
+						className='product-card'
+						title={getLocaleKey(state.language, '/', 'landing-product-first-title')}
+						bulletpoints={getLocaleKey(state.language, '/', 'landing-product-first-bulletpoints')}
+						button={getLocaleKey(state.language, '/', 'landing-product-first-button')}
+						language={state.language}
+					/>
 				</div>
 
 				<div

@@ -1,0 +1,40 @@
+{
+	"ar": {
+		"landing-title": "الخدمات الرقمية لمدارس\nنور الإسلام الأهلية القسم الثانوي",
+		"landing-sub-title": "تسعى خدمات نور الإسلام الرقمية لتحسين تعليمك",
+		"landing-services": "الخدمات",
+		"landing-showcase-barcode-title": "الحصول على بطاقة الباركود",
+		"landing-showcase-barcode-description": "قم بإنشاء الرمز الشريطي الخاص بك وطباعته فقط عن طريق إدخال رقم الهوية الخاص بك",
+		"landing-showcase-committee-researcher-title": "تعرف على معلومات لجنتك",
+		"landing-showcase-committee-researcher-description": "قم بعرض وطباعة جميع المعلومات المتعلقة  بلجنتك عن طريق إدخال رقم هويتك",
+		"landing-showcase-committee-list-title": "عرض قائمة طلاب اللجنة",
+		"landing-showcase-committee-list-description": "عرض القائمة الكاملة للطلاب في كل لجنة أو مكان مع إمكانات البحث",
+		"landing-showcase-schedule-title": "تعرف على التقويم الدراسي",
+		"landing-showcase-schedule-description": "عرض الجدول الزمني الكامل لهذا العام بما في ذلك إجازات الأسبوع القصيرة والأعياد",
+		"landing-other-products": "منتجات أخرى",
+		"landing-product-first-bulletpoints": ["إعادة حل الواجبات بترتيب أسئلة مختلف في حدود زمنية قابلة للتعديل", "تنزيل عدة مستندات للواجبات في وقت واحد", "إنشاء واجبات مخصصة ومشاركتها"],
+		"landing-product-first-title": "أدوات بوابة المعارف التعليمية",
+		"landing-product-first-button": "قريبًا في متجر كروم الالكتروني"
+	},
+	"en": {
+		"landing-title": "Digital Services for\nNoor Al-Islam Schools\nHighschool Section",
+		"landing-sub-title": "We strive to improve your education",
+		"landing-services": "Services",
+		"landing-showcase-barcode-title": "Acquire student card barcode",
+		"landing-showcase-barcode-description": "Create and print your own card with a barcode just by entering your ID number",
+		"landing-showcase-committee-researcher-title": "Get your exam committee's data",
+		"landing-showcase-committee-researcher-description": "View and print all information related to your committee by entering your ID number",
+		"landing-showcase-committee-list-title": "View committee students list",
+		"landing-showcase-committee-list-description": "View the full list of students in each committee or area with search capabilities",
+		"landing-showcase-schedule-title": "Learn about the academic schedule",
+		"landing-showcase-schedule-description": "View the full schedule for the year including short weekends and holidays",
+		"landing-other-products": "Other products",
+		"landing-product-first-bulletpoints": [
+			"Re-do assignments with random question orders under adjustable time limits",
+			"Download multiple homework assignment documents concurrently",
+			"Create & share custom assignemnts"
+		],
+		"landing-product-first-title": "Maarif Learning Gate Tools",
+		"landing-product-first-button": "Coming soon in the Chrome Web Store"
+	}
+}
