@@ -1,7 +1,8 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { TextField, Button, Divider } from '@mui/material';
+import { TextField, Button, Divider, Slider } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { LoadingButton } from '@mui/lab';
+
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 // import Menu from '@mui/material/Menu';
 import SelectMenu from 'components/SelectMenu.js';
@@ -21,6 +22,14 @@ import CanvasContext from 'hooks/CanvasContext.js';
 
 import bgOriginal from 'icons/barcode-background-original.png';
 import bgBasic from 'icons/barcode-background-basic.png';
+import bgOriginalEn from 'icons/barcode-background-original-en.png';
+import bgBasicEn from 'icons/barcode-background-basic-en.png';
+// import bgBasic from 'icons/barcode-background-basic.png';
+
+import useLocaleHook from 'hooks/LocaleHook.js';
+import { useMainContext } from 'contexts/MainContext.jsx';
+
+import ChoiceField from './ChoiceField.js';
 
 // import Barcode from 'react-jsbarcode';
 // import JsBarcode from 'jsbarcode';
@@ -45,17 +54,6 @@ const dictionary = {
 	// '2':
 };
 
-const DESIGN_CHOICES = {
-	'original': 'أصلي',
-	'basic': 'مبسط',
-	// 'miniature': 'مصغر',
-};
-
-const FILE_TYPES = {
-	'pdf': 'PDF مستند',
-	'jpg': 'JPG صورة',
-};
-
 // TODO: download committe pdf document based on selected language
 
 export default function Barcode() {
@@ -64,11 +62,9 @@ export default function Barcode() {
 		error: null,
 		loading: false,
 		showReady: false,
-		designOpen: false,
-		// designChoice: 'original',
-		designChoice: 'original',
-		fileOpen: false,
-		fileChoice: 'pdf',
+		design: localStorage.getItem('barcode-design-choice-field') || 'original',
+		file: localStorage.getItem('barcode-file-choice-field') || 'pdf',
+		scale: 100,
 	});
 	const _state = useRef(state);
 	const setState = (data) => {
@@ -76,7 +72,14 @@ export default function Barcode() {
 		_setState(data);
 	};
 
-	const { isIDNumberValid, getRTLFieldTheme, loadImage } = useUtilityHook();
+	const { main } = useMainContext();
+	const { switchLocale, getLocaleKey } = useLocaleHook();
+
+	const onLanguageChange = (lang) => {
+		switchLocale(lang, '/barcode');
+	};
+
+	const { isIDNumberValid, getRTLFieldTheme, getNullTheme, loadImage, mergeAsObject } = useUtilityHook();
 
 	const pdf = new jsPDF();
 	const field = useRef(null);
@@ -97,6 +100,8 @@ export default function Barcode() {
 	};
 
 	const onFieldChange = (event) => {
+		console.log(event.target.value < 0);
+
 		if (event.target.value.trim() == '')
 			return setState({
 				...state,
@@ -137,29 +142,45 @@ export default function Barcode() {
 		});
 	};
 
-	const getBarcodeDocumentedOriginal = async () => {
+	const getWhiteImage = (width, height) => {
+		let ctx = canvas.current.getContext('2d');
+
+		canvas.current.width = width;
+		canvas.current.height = height;
+		ctx.fillStyle = 'white';
+		ctx.fillRect(0, 0, width, height);
+
+		return ctx.canvas.toDataURL('image/jpeg');
+	};
+
+	const getBarcodeDocumentedOriginal = async (direction = 'rtl', scale = 1) => {
 		let ctx = canvas.current.getContext('2d');
 		let context = new CanvasContext(ctx);
 
+		let extension = 1 / scale;
+
 		// Add background image
-		let background = await loadImage(bgOriginal);
+		let background = await loadImage(direction == 'rtl' ? bgOriginal : bgOriginalEn);
 		canvas.current.width = background.width;
 		canvas.current.height = background.height;
+
+		ctx.scale(scale, scale);
+
 		ctx.fillStyle = 'white';
-		ctx.fillRect(0, 0, background.width, background.height);
+		ctx.fillRect(0, 0, background.width * extension, background.height * extension);
 		ctx.fillStyle = 'black';
 		ctx.drawImage(background.image, 0, 0, background.width, background.height);
 
 		// Add identity number box
 		ctx.strokeStyle = 'black';
 		ctx.setLineDash([6]);
-		ctx.strokeRect(526 - 40, 59, 40, 147);
+		ctx.strokeRect(direction == 'rtl' ? 526 - 40 : 19, 59, 40, 147);
 
 		// Add rotated identity number
 		ctx.save();
 		ctx.font = 'normal 26px oldink';
 		let width = ctx.measureText(state.field).width;
-		ctx.translate(526 - 28, 59 + width / 2 + (147 - width) / 2);
+		ctx.translate(direction == 'rtl' ? 526 - 28 : 19 + 13, 59 + width / 2 + (147 - width) / 2);
 		ctx.rotate(90 * (Math.PI / 180));
 		ctx.textAlign = 'center';
 		ctx.fillStyle = 'black';
@@ -175,27 +196,34 @@ export default function Barcode() {
 
 		// Paper cut dashed line indicators
 		ctx.strokeStyle = '#8F8F8F';
-		context.line(0, 313 + 18 * 2 + 24 / 2, ctx.canvas.width, 313 + 18 * 2 + 24 / 2, [10, 5]);
-		context.line(508 + 18 * 2 + 24 / 2, 0, 508 + 18 * 2 + 24 / 2, ctx.canvas.height, [10, 5]);
+		context.line(0, 313 + 18 * 2 + 24 / 2, ctx.canvas.width * extension, 313 + 18 * 2 + 24 / 2, [10, 5]);
+		context.line(508 + 18 * 2 + 24 / 2, 0, 508 + 18 * 2 + 24 / 2, ctx.canvas.height * extension, [10, 5]);
 
 		// Add paper cut scissor icon indicators
 		let scissors = await loadImage(scissorsIcon);
 		context.rotatedImage(scissors.image, 508 + 18 * 2 + 50, 313 + 18 * 2, 24, 24, 180);
 		context.rotatedImage(scissors.image, 508 + 18 * 2 + 24, 313 + 18 * 2 + 50, 24, 24, 270);
 
+		// ctx.scale(2, 2);
+
 		return ctx.canvas.toDataURL('image/jpeg');
 	};
 
-	const getBarcodeDocumentedBasic = async () => {
+	const getBarcodeDocumentedBasic = async (direction = 'rtl', scale = 1) => {
 		let ctx = canvas.current.getContext('2d');
 		let context = new CanvasContext(ctx);
 
+		let extension = 1 / scale;
+
 		// Add background image
-		let background = await loadImage(bgBasic);
+		let background = await loadImage(direction == 'rtl' ? bgBasic : bgBasicEn);
 		canvas.current.width = background.width;
 		canvas.current.height = background.height;
+
+		ctx.scale(scale, scale);
+
 		ctx.fillStyle = 'white';
-		ctx.fillRect(0, 0, background.width, background.height);
+		ctx.fillRect(0, 0, background.width * extension, background.height * extension);
 		ctx.fillStyle = 'black';
 		ctx.drawImage(background.image, 0, 0, background.width, background.height);
 
@@ -214,23 +242,26 @@ export default function Barcode() {
 
 		// Paper cut dashed line indicators
 		ctx.strokeStyle = '#8F8F8F';
-		context.line(0, 185 + 18 * 2 + 24 / 2, ctx.canvas.width, 185 + 18 * 2 + 24 / 2, [10, 5]);
-		context.line(506 + 18 * 2 + 24 / 2, 0, 506 + 18 * 2 + 24 / 2, ctx.canvas.height, [10, 5]);
+		context.line(0, 185 + 18 * 2 + 24 / 2, ctx.canvas.width * extension, 185 + 18 * 2 + 24 / 2, [10, 5]);
+		context.line(506 + 18 * 2 + 24 / 2, 0, 506 + 18 * 2 + 24 / 2, ctx.canvas.height * extension, [10, 5]);
 
 		// Add paper cut scissor icon indicators
 		let scissors = await loadImage(scissorsIcon);
 		context.rotatedImage(scissors.image, 506 + 18 * 2 + 50, 185 + 18 * 2, 24, 24, 180);
 		context.rotatedImage(scissors.image, 506 + 18 * 2 + 24, 185 + 18 * 2 + 50, 24, 24, 270);
+		console.log(ctx);
 
 		return ctx.canvas.toDataURL('image/jpeg');
 	};
 
 	const getBarcodeDocumented = async () => {
 		let data;
-		if (state.designChoice == 'original') {
-			data = await getBarcodeDocumentedOriginal();
+		let direction = main.language == 'ar' ? 'rtl' : 'ltr';
+
+		if (state.design == 'original') {
+			data = await getBarcodeDocumentedOriginal(direction, state.scale / 100);
 		} else {
-			data = await getBarcodeDocumentedBasic();
+			data = await getBarcodeDocumentedBasic(direction, state.scale / 100);
 		}
 
 		return data;
@@ -247,6 +278,7 @@ export default function Barcode() {
 
 	const saveAsPhoto = async () => {
 		let data = await getBarcodeDocumented();
+
 		download.current.href = data;
 		download.current.click();
 	};
@@ -382,7 +414,7 @@ export default function Barcode() {
 	};
 
 	const onSave = () => {
-		switch (state.fileChoice) {
+		switch (state.file) {
 			case 'pdf':
 				saveAsDocument();
 				break;
@@ -399,13 +431,18 @@ export default function Barcode() {
 		ctx.fillStyle = 'black';
 		ctx.fillText('123', 50, 50);
 		ctx.clearRect(0, 0, canvas.current.width, canvas.current.height);
+		switchLocale(main.language, '/barcode');
 	}, []);
 
 	return (
 		<ThemeProvider
-			theme={getRTLFieldTheme({
-				shadows: ['none'],
-			})}
+			theme={
+				main.language == 'ar'
+					? getRTLFieldTheme({
+							shadows: ['none'],
+					  })
+					: getNullTheme({ shadows: ['none'] })
+			}
 			// theme={theme}
 		>
 			<div
@@ -434,11 +471,12 @@ export default function Barcode() {
 				}}
 			>
 				<div style={{ width: '100%', paddingLeft: '3.125vw', paddingRight: '3.125vw', boxSizing: 'border-box', zIndex: '5' }}>
-					<Header />
+					<Header onLanguageChange={onLanguageChange} />
 				</div>
 				<div id='main'>
 					<div id='top'>
 						<div
+							data-locale-key='title'
 							id='title'
 							style={{
 								marginBottom: '30px',
@@ -447,26 +485,27 @@ export default function Barcode() {
 								textAlign: 'center',
 								fontFamily: 'segoeui',
 							}}
-						>
-							إعادة إنشاء باركود
-						</div>
-						<div id='interactables'>
+						></div>
+						<div className={`interactables${main.language == 'en' ? ' interactables-en' : ''}`}>
 							<LoadingButton
-								id='main-button'
+								className={`main-button${main.language == 'en' ? ' main-button-en' : ''}`}
 								loading={state.loading}
 								variant='contained'
 								style={{
 									height: '62px',
 									fontSize: '20px',
+									textTransform: 'none',
 								}}
 								onClick={onRequestSearch}
 							>
-								إعادة إنشاء
+								<div data-locale-key='regenerate-btn'>إعادة إنشاء</div>
 							</LoadingButton>
 
 							<TextField
 								ref={field}
-								type='number'
+								style={{
+									textAlign: 'right',
+								}}
 								sx={{
 									width: '100%',
 									height: '62px',
@@ -484,8 +523,11 @@ export default function Barcode() {
 										height: '62px',
 									},
 								}}
+								inputProps={{
+									style: { textAlign: main.language == 'ar' ? 'right' : 'left' },
+								}}
 								id='main-field'
-								label='رقم الهوية'
+								label={getLocaleKey(main.language, '/barcode', 'field-label')}
 								value={state.field}
 								onChange={onFieldChange}
 								onBlur={onBlur}
@@ -562,92 +604,76 @@ export default function Barcode() {
 								}}
 								id='interactable-buttons'
 							>
-								<Button className='select-button' variant='contained' onClick={() => setState({ ...state, designOpen: true })} ref={designButton}>
-									<KeyboardArrowDownIcon />
+								<ChoiceField
+									choices={mergeAsObject(['original', 'basic'], getLocaleKey(main.language, '/barcode', 'design-field-choices'))}
+									default='original'
+									onChange={(id) => {
+										setState({
+											...state,
+											design: id,
+										});
+									}}
+									name={getLocaleKey(main.language, '/barcode', 'design-field-name')}
+									language={main.language}
+									id='barcode-design-choice-field'
+								/>
 
-									<div
-										style={{
-											display: 'flex',
-											flexDirection: 'row',
-										}}
-									>
-										<span style={{ color: 'gray' }}>{DESIGN_CHOICES[state.designChoice]}</span>&nbsp;:نوع التصميم
-									</div>
-								</Button>
-								<SelectMenu
-									anchor={designButton.current}
+								<ChoiceField
+									choices={mergeAsObject(['pdf', 'jpg'], getLocaleKey(main.language, '/barcode', 'file-field-choices'))}
+									default='pdf'
+									onChange={(id) => {
+										setState({
+											...state,
+											file: id,
+										});
+									}}
+									name={getLocaleKey(main.language, '/barcode', 'file-field-name')}
+									language={main.language}
+									id='barcode-file-choice-field'
+								/>
+
+								<div
+									className='option-box'
 									style={{
-										width: '100%',
+										display: 'flex',
+										flexDirection: main.language == 'ar' ? 'row-reverse' : 'row',
+										alignItems: 'center',
+										justifyContent: 'space-between',
+										padding: '0px 10px 0px 10px',
 									}}
-									open={state.designOpen}
-									selected={state.designChoice}
-									onClose={() => setState({ ...state, designOpen: false })}
-									onChange={(id) => {
-										setState({
-											...state,
-											designOpen: false,
-											designChoice: id,
-										});
-									}}
-									options={Object.entries(DESIGN_CHOICES).map(([key, value]) => {
-										return {
-											id: key,
-											name: value,
-										};
-									})}
-									MenuListSx={{
-										border: '1px solid #b2b9bc',
-										boxSizing: 'border-box',
-									}}
-									sx={{
-										marginTop: '5px',
-									}}
-									dir='rtl'
-								/>
-
-								<Button className='select-button' variant='contained' onClick={() => setState({ ...state, fileOpen: true })} ref={fileButton}>
-									<KeyboardArrowDownIcon />
-
+								>
 									<div
+										data-locale-key='scale-slider'
 										style={{
-											display: 'flex',
-											flexDirection: 'row',
+											direction: main.language == 'ar' ? 'rtl' : 'ltr',
+											width: 'max-content',
+											margin: main.language == 'ar' ? '0px 0px 0px 15px' : '0px 10px 0px 0px',
+											whiteSpace: 'nowrap',
 										}}
 									>
-										<span style={{ color: 'gray' }}>{FILE_TYPES[state.fileChoice]}</span>&nbsp;:نوع الملف
+										نسبة قياس الحجم:
 									</div>
-								</Button>
+									<Slider
+										sx={{
+											width: '70%',
+										}}
+										size='small'
+										max={200}
+										value={state.scale}
+										onChange={(event) => {
+											setState({
+												...state,
+												scale: event.target.value,
+											});
+										}}
+									/>
+									<div style={{ margin: main.language == 'ar' ? '0px 10px 0px 0px' : '0px 0px 0px 15px', textAlign: 'left' }}>{state.scale}%</div>
+								</div>
 
-								<SelectMenu
-									anchor={fileButton.current}
-									open={state.fileOpen}
-									selected={state.fileChoice}
-									onClose={() => setState({ ...state, fileOpen: false })}
-									onChange={(id) => {
-										setState({
-											...state,
-											fileOpen: false,
-											fileChoice: id,
-										});
-									}}
-									options={Object.entries(FILE_TYPES).map(([key, value]) => {
-										return {
-											id: key,
-											name: value,
-										};
-									})}
-									MenuListSx={{
-										border: '1px solid #b2b9bc',
-										boxSizing: 'border-box',
-									}}
-									sx={{
-										marginTop: '5px',
-									}}
-									dir='rtl'
-								/>
-
-								<Button variant='contained' onClick={onSave} style={{ width: '100%' }} className='save-button'>
-									حفظ
+								<Button className='save-button' variant='contained' onClick={onSave} style={{ width: '100%', textTransform: 'none', display: 'flex', alignItems: 'center' }}>
+									<div data-locale-key='save-button' style={{ lineHeight: '1em' }}>
+										حفظ
+									</div>
 								</Button>
 							</div>
 						</div>

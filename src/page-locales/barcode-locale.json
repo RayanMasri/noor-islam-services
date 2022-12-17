@@ -1,0 +1,24 @@
+{
+	"ar": {
+		"title": "إعادة إنشاء باركود",
+		"regenerate-btn": "إنشاء",
+		"field-label": "رقم الهوية",
+		"design-field-name": "نوع التصميم",
+		"file-field-name": "نوع الملف",
+		"design-field-choices": ["مبسط", "أصلي"],
+		"file-field-choices": ["JPG صورة", "PDF مستند"],
+		"save-button": "حفظ",
+		"scale-slider": "نسبة قياس الحجم:"
+	},
+	"en": {
+		"title": "Barcode Regeneration",
+		"regenerate-btn": "Generate",
+		"field-label": "Identity Number",
+		"design-field-name": "Design type",
+		"file-field-name": "File type",
+		"design-field-choices": ["Original", "Miniature"],
+		"file-field-choices": ["PDF Document", "JPG Image"],
+		"save-button": "Save",
+		"scale-slider": "Size ratio:"
+	}
+}

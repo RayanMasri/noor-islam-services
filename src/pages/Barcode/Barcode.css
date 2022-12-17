@@ -44,18 +44,22 @@ input::-webkit-inner-spin-button {
 	}
 }
 @media only screen and (min-width: 500px) {
-	#barcode-page #interactables {
+	#barcode-page .interactables {
 		flex-direction: row;
 	}
 
-	#barcode-page #main-button {
+	#barcode-page .main-button {
 		margin: 0px 15px 0px 0px;
 		width: 150px;
+	}
+
+	#barcode-page .main-button-en {
+		margin: 0px 0px 0px 15px;
 	}
 }
 
 @media only screen and (max-width: 500px) {
-	#barcode-page #interactables {
+	#barcode-page .interactables {
 		flex-direction: column-reverse;
 		width: 100%;
 	}
@@ -76,7 +80,7 @@ input::-webkit-inner-spin-button {
 		box-sizing: border-box;
 	} */
 
-	#barcode-page #main-button {
+	#barcode-page .main-button {
 		margin: 15px 0px 0px 0px;
 		width: 100%;
 	}
@@ -107,15 +111,14 @@ input::-webkit-inner-spin-button {
 
 #barcode-page #main-field {
 	width: 100%;
-	text-align: right;
 }
 
-#barcode-page #main-button {
+#barcode-page .main-button {
 	height: 50px;
 	font-size: 25px;
 }
 
-#barcode-page .select-button {
+#barcode-page .option-box {
 	background-color: white;
 	border: 1px solid #b2b9bc;
 	color: black;
@@ -123,9 +126,9 @@ input::-webkit-inner-spin-button {
 	flex-direction: row;
 	justify-content: space-between;
 	width: 100% !important;
-	margin-bottom: 10px;
-	padding-left: 5px !important;
-	padding-right: 10px !important;
+	box-sizing: border-box;
+	height: 35px;
+	border-radius: 4px;
 }
 
 #barcode-page #main {
@@ -165,13 +168,17 @@ input::-webkit-inner-spin-button {
 	padding-right: 3.125vw;
 }
 
-#barcode-page #interactables {
+#barcode-page .interactables {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 }
 
-#barcode-page #interactable-buttons > button {
+#barcode-page .interactables-en {
+	flex-direction: row-reverse;
+}
+
+#barcode-page #interactable-buttons > div {
 	padding: 0px;
 	font-size: 18px;
 	font-family: Arial !important;
@@ -179,14 +186,13 @@ input::-webkit-inner-spin-button {
 	padding-left: 15px;
 	padding-right: 15px;
 	width: 140px;
+	margin-bottom: 10px;
 }
-#barcode-page #interactable-buttons > button > div:first-child {
-	font-family: Arial !important;
-}
-#barcode-page #interactable-buttons > button:last-child > div:first-child {
-	font-family: Arial !important;
-	margin-right: 5px;
-	margin-top: 4px;
+
+#barcode-page #interactable-buttons > .save-button {
+	width: 100%;
+	font-size: 18px;
+	height: 35px;
 }
 
 #barcode-page .MuiLoadingButton-root .MuiCircularProgress-root {

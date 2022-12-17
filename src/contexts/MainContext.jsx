@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 let object = {
-	language: 'ar',
+	language: localStorage.getItem('page-locale') || 'ar',
 };
 
 const MainContext = React.createContext({

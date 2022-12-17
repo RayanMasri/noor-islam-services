@@ -101,7 +101,7 @@ export default function Header(props) {
 						anchor={languageAnchor.current}
 						open={state.language}
 						// selected={main.language}
-						selected={props.language}
+						selected={main.language}
 						onClose={() => setState({ ...state, language: false })}
 						onChange={(id) => {
 							setState({
@@ -113,6 +113,7 @@ export default function Header(props) {
 								language: id,
 							});
 
+							localStorage.setItem('page-locale', id);
 							props.onLanguageChange(id);
 						}}
 						options={Object.entries(LANGUAGES).map(([key, value]) => {
@@ -131,7 +132,7 @@ export default function Header(props) {
 								backgroundColor: 'white',
 								borderRadius: '5px',
 								display: 'flex',
-								flexDirection: props.language != 'ar' ? 'row' : 'row-reverse',
+								flexDirection: main.language != 'ar' ? 'row' : 'row-reverse',
 								justifyContent: 'space-between',
 								alignItems: 'center',
 								color: '#243162',
@@ -143,13 +144,13 @@ export default function Header(props) {
 							<div
 								style={{
 									display: 'flex',
-									flexDirection: props.language != 'ar' ? 'row' : 'row-reverse',
+									flexDirection: main.language != 'ar' ? 'row' : 'row-reverse',
 									justifyContent: 'space-between',
 									alignItems: 'center',
 								}}
 							>
 								<PublicIcon sx={{ color: '#243162', mx: '5px' }} />
-								<div style={{ fontFamily: 'segoeui', color: '#243162', textTransform: 'none' }}>{LANGUAGES[props.language]}</div>
+								<div style={{ fontFamily: 'segoeui', color: '#243162', textTransform: 'none' }}>{LANGUAGES[main.language]}</div>
 							</div>
 							<KeyboardArrowDownIcon />
 						</Button>
