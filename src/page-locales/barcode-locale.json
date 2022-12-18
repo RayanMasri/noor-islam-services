@@ -5,8 +5,8 @@
 		"field-label": "رقم الهوية",
 		"design-field-name": "نوع التصميم",
 		"file-field-name": "نوع الملف",
-		"design-field-choices": ["مبسط", "أصلي"],
-		"file-field-choices": ["JPG صورة", "PDF مستند"],
+		"design-field-choices": ["أصلي", "مبسط"],
+		"file-field-choices": ["PDF مستند", "JPG صورة"],
 		"save-button": "حفظ",
 		"scale-slider": "نسبة قياس الحجم:"
 	},

@@ -34,18 +34,43 @@ input::-webkit-inner-spin-button {
 	text-overflow: ellipsis;
 }
 
-@media only screen and (max-width: 700px) {
-	#barcode-page #vision-logo {
-		display: none;
-	}
+#barcode-page #title {
+	width: 100%;
+	color: #233262;
+	font-size: 50px;
+	font-family: segoeui;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	line-height: 50px;
+	margin-bottom: 10px;
+}
 
-	#barcode-page #noor-islam-logo {
-		display: none !important;
+/* @media only screen and (max-width) */
+
+@media only screen and (max-width: 600px) and (min-width: 340px) {
+	#barcode-page #title {
+		font-size: 8.33vw;
+		margin-bottom: 5vw !important;
+		line-height: 1;
 	}
 }
+
+@media only screen and (max-width: 340px) {
+	#barcode-page #title {
+		font-size: 28.322px;
+		margin-bottom: 17px !important;
+		line-height: 1;
+	}
+}
+
 @media only screen and (min-width: 500px) {
 	#barcode-page .interactables {
 		flex-direction: row;
+	}
+
+	#barcode-page .interactables-en {
+		flex-direction: row-reverse;
 	}
 
 	#barcode-page .main-button {
@@ -60,6 +85,11 @@ input::-webkit-inner-spin-button {
 
 @media only screen and (max-width: 500px) {
 	#barcode-page .interactables {
+		flex-direction: column-reverse;
+		width: 100%;
+	}
+
+	#barcode-page .interactables-en {
 		flex-direction: column-reverse;
 		width: 100%;
 	}
@@ -144,18 +174,6 @@ input::-webkit-inner-spin-button {
 	flex-direction: column;
 }
 
-#barcode-page #title {
-	width: 100%;
-	color: #233262;
-	font-size: 50px;
-	font-family: segoeui;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	line-height: 50px;
-	margin-bottom: 10px;
-}
-
 #barcode-page #top {
 	width: 100%;
 	height: max-content;
@@ -172,10 +190,6 @@ input::-webkit-inner-spin-button {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-}
-
-#barcode-page .interactables-en {
-	flex-direction: row-reverse;
 }
 
 #barcode-page #interactable-buttons > div {

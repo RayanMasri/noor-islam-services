@@ -27,6 +27,7 @@ import bgBasicEn from 'icons/barcode-background-basic-en.png';
 // import bgBasic from 'icons/barcode-background-basic.png';
 
 import useLocaleHook from 'hooks/LocaleHook.js';
+import useDateHook from 'hooks/DateHook.jsx';
 import { useMainContext } from 'contexts/MainContext.jsx';
 
 import ChoiceField from './ChoiceField.js';
@@ -80,6 +81,7 @@ export default function Barcode() {
 	};
 
 	const { isIDNumberValid, getRTLFieldTheme, getNullTheme, loadImage, mergeAsObject } = useUtilityHook();
+	const { isArabicDigit, fromArToEnInteger } = useDateHook();
 
 	const pdf = new jsPDF();
 	const field = useRef(null);
@@ -100,20 +102,23 @@ export default function Barcode() {
 	};
 
 	const onFieldChange = (event) => {
-		console.log(event.target.value < 0);
+		let value = event.target.value
+			.split('')
+			.map((character) => (isArabicDigit(character) ? fromArToEnInteger(character) : character))
+			.join('');
 
-		if (event.target.value.trim() == '')
+		if (value.trim() == '')
 			return setState({
 				...state,
-				field: event.target.value,
+				field: value,
 			});
 
-		if (event.target.value.length > 13 || !isIDNumberValid(event.target.value)) return;
+		if (value.length > 13 || !isIDNumberValid(value)) return;
 
 		setState({
 			...state,
 			error: null,
-			field: event.target.value,
+			field: value,
 		});
 	};
 
@@ -192,7 +197,7 @@ export default function Barcode() {
 		let padding = 86;
 		let maxWidth = 508 - padding * 2;
 		let { width: barcodeWidth } = calculateClampedWidth(`*${state.field}*`, maxWidth);
-		createBarcode(ctx, state.field, maxWidth, { x: 19 + (padding + Math.floor((maxWidth - barcodeWidth) / 2)), y: 275 }, false);
+		createBarcode(ctx, state.field, maxWidth, { x: 19 + (padding + Math.floor((maxWidth - barcodeWidth) / 2)), y: 275 }, false, canvas);
 
 		// Paper cut dashed line indicators
 		ctx.strokeStyle = '#8F8F8F';
@@ -231,14 +236,22 @@ export default function Barcode() {
 		let padding = 60; // extended barcode
 		let maxWidth = 506 - padding * 2;
 		let { width: barcodeWidth } = calculateClampedWidth(`*${state.field}*`, maxWidth);
-		createBarcode(ctx, state.field, maxWidth, { x: 19 + (padding + Math.floor((maxWidth - barcodeWidth) / 2)), y: 107 }, true, {
-			barHeight: 30,
-			barSpacing: 3,
-			lineWidth: 3,
-			rectWidth: 9,
-			spaceWidth: 6,
-			textSpacing: 20,
-		});
+		createBarcode(
+			ctx,
+			state.field,
+			maxWidth,
+			{ x: 19 + (padding + Math.floor((maxWidth - barcodeWidth) / 2)), y: 107 },
+			true,
+			{
+				barHeight: 30,
+				barSpacing: 3,
+				lineWidth: 3,
+				rectWidth: 9,
+				spaceWidth: 6,
+				textSpacing: 20,
+			},
+			canvas
+		);
 
 		// Paper cut dashed line indicators
 		ctx.strokeStyle = '#8F8F8F';
@@ -314,6 +327,7 @@ export default function Barcode() {
 
 	const calculateClampedWidth = (string, maxWidth, lineWidth = 3, rectWidth = 9, spaceWidth = 6, barSpacing = 3) => {
 		let totalWidth = calculateTotalWidth(string, lineWidth, rectWidth, spaceWidth, barSpacing);
+
 		let percentage = 1;
 
 		if (totalWidth > maxWidth) {
@@ -325,10 +339,11 @@ export default function Barcode() {
 
 			// totalWidth = calculateTotalWidth(string, lineWidth, rectWidth, spaceWidth, barSpacing);
 		}
+
 		return { width: calculateTotalWidth(string, lineWidth * percentage, rectWidth * percentage, spaceWidth * percentage, barSpacing * percentage), percentage: percentage };
 	};
 
-	const createBarcode = (ctx, input, maxWidth, offset, label = true, settings = null) => {
+	const createBarcode = (ctx, input, maxWidth, offset, label = true, settings = null, canvasRef = null) => {
 		let context = new CanvasContext(ctx);
 
 		let barHeight = 30;
@@ -353,6 +368,7 @@ export default function Barcode() {
 		const string = `*${input}*`;
 
 		let { width: totalWidth, percentage } = calculateClampedWidth(string, maxWidth, lineWidth, rectWidth, spaceWidth, barSpacing);
+		console.log(`Barcode width: ${totalWidth}`);
 
 		lineWidth *= percentage;
 		rectWidth *= percentage;
@@ -362,15 +378,38 @@ export default function Barcode() {
 		let origin = 0;
 		// let origin = padding + Math.floor((maxWidth - totalWidth) / 2);
 
+		// TODO: fill each character as a text
 		if (label) {
 			ctx.font = 'normal 28px oldink';
-			ctx.letterSpacing = '0px';
-			let textWidth = ctx.measureText(input).width;
-			ctx.letterSpacing = `${(totalWidth - textWidth) / (input.length - 1)}px`;
-			textWidth = ctx.measureText(input).width;
+
+			let textWidth = input
+				.split('')
+				.map((character) => ctx.measureText(character).width)
+				.reduce((acc, val) => acc + val);
+
+			let letterSpacing = (totalWidth - textWidth) / (input.length - 1);
+
 			ctx.fillStyle = 'black';
 			ctx.textBaseline = 'top';
-			ctx.fillText(input, offset.x + (input.length == 1 ? totalWidth / 2 - textWidth / 2 : 0), offset.y);
+
+			if (input.length == 1) {
+				ctx.fillText(input, offset.x + totalWidth / 2 - textWidth / 2, offset.y);
+			} else {
+				let origin = 0;
+				for (let character of input) {
+					ctx.fillText(character, origin + offset.x, offset.y);
+					origin += ctx.measureText(character).width;
+					origin += letterSpacing;
+				}
+			}
+
+			// ctx.letterSpacing = letterSpacing;
+
+			// textWidth = ctx.measureText(input).width;
+			// console.log(textWidth);
+			// ctx.fillStyle = 'black';
+			// ctx.textBaseline = 'top';
+			// ctx.fillText(input, offset.x + (input.length == 1 ? totalWidth / 2 - textWidth / 2 : 0), offset.y);
 		}
 
 		// console.log(totalWidth);
@@ -409,7 +448,7 @@ export default function Barcode() {
 		let padding = 16;
 		let maxWidth = showcaseCanvas.current.width - padding * 2;
 		let { width } = calculateClampedWidth(`*${input}*`, maxWidth);
-		createBarcode(ctx, input, maxWidth, { x: padding + Math.floor((maxWidth - width) / 2), y: 7 });
+		createBarcode(ctx, input, maxWidth, { x: padding + Math.floor((maxWidth - width) / 2), y: 7 }, true, null, showcaseCanvas);
 		// The recommended minimum symbol height for manual scanning is 5.0 mm or 15 percent of the symbol width (excluding quiet zones), whichever is greater. The quiet zones must be at least 10X wide, where "X" is the current X dimension.
 	};
 
@@ -447,7 +486,7 @@ export default function Barcode() {
 		>
 			<div
 				style={{
-					// display: 'none',
+					display: 'none',
 					position: 'fixed',
 					overflow: 'hidden',
 					// height: 'max-content',
@@ -486,6 +525,7 @@ export default function Barcode() {
 								fontFamily: 'segoeui',
 							}}
 						></div>
+
 						<div className={`interactables${main.language == 'en' ? ' interactables-en' : ''}`}>
 							<LoadingButton
 								className={`main-button${main.language == 'en' ? ' main-button-en' : ''}`}

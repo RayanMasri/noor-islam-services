@@ -57,14 +57,6 @@ export default function useDateHook() {
 		return weekdays_en[weekdays_ar.findIndex((x) => x == weekday)];
 	};
 
-	const fromEnToArInteger = (integer) => {
-		return integer
-			.toString()
-			.split('')
-			.map((digit) => arabic_digits[digit])
-			.join('');
-	};
-
 	const hijriMonthEnToAr = (month) => {
 		return hijri_months[month];
 	};
@@ -77,7 +69,26 @@ export default function useDateHook() {
 		return Object.keys(hijri_months).findIndex((x) => x == month) + 1;
 	};
 
+	const fromEnToArInteger = (integer) => {
+		return integer
+			.toString()
+			.split('')
+			.map((digit) => arabic_digits[digit])
+			.join('');
+	};
+
+	const fromArToEnInteger = (integer) => {
+		let [key, _] = Object.entries(arabic_digits).find(([key, value]) => value == integer);
+		return key;
+	};
+
+	const isArabicDigit = (character) => {
+		return character.toString().match(/^[\u0660-\u0669]+$/g) != null;
+	};
+
 	return {
+		fromArToEnInteger,
+		isArabicDigit,
 		getHijriDateWeekDay,
 		fromEnToArWeekday,
 		fromArToEnWeekday,

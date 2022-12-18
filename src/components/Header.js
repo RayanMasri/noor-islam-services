@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Menu from 'components/Menu.js';
 import SelectMenu from 'components/SelectMenu.js';
 import { IconButton, Button, Divider } from '@mui/material';
@@ -23,6 +23,12 @@ export default function Header(props) {
 		language: false,
 	});
 	const languageAnchor = useRef(null);
+
+	useEffect(() => {
+		document.body.addEventListener('mousedown', (event) => {
+			console.log(event.target);
+		});
+	}, []);
 
 	return (
 		<div
@@ -139,7 +145,14 @@ export default function Header(props) {
 								width: '150px',
 							}}
 							ref={languageAnchor}
-							onClick={(event) => setState({ ...state, language: true })}
+							// onMouseDown={(event) => {
+							// 	console.log('hey');
+							// }}
+							onClick={(event) => {
+								console.log('hi');
+								// document.body.remove();
+								setState({ ...state, language: true });
+							}}
 						>
 							<div
 								style={{
