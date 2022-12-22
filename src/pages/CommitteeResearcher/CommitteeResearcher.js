@@ -1,86 +1,56 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { TextField, Button, Divider } from '@mui/material';
+import { TextField, Button, Divider, Slider } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { LoadingButton } from '@mui/lab';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
+
 import jsPDF from 'jspdf';
-import pdfBackground from '../../icons/background.png';
-import pdfBackgroundMinified from '../../icons/background-minified.png';
 import scissorsIcon from '../../icons/scissors.png';
-// import maarifLogo from './maarif-logo-160.png';
 import Header from '../../components/Header.js';
-import './CommitteeResearcher.css';
+
 import useUtilityHook from 'hooks/UtilityHook.jsx';
+import useLocaleHook from 'hooks/LocaleHook.js';
+import useDateHook from 'hooks/DateHook.jsx';
+
 import CanvasContext from 'hooks/CanvasContext.js';
+import { useMainContext } from 'contexts/MainContext.jsx';
 
-import SelectMenu from 'components/SelectMenu.js';
+import bgMinified from 'icons/background-minified.png';
+import bgNormal from 'icons/background.png';
 
-// const CANVAS_FONT_SIZE = 500;
-// const CANVAS_FONT_SIZE = 20;
-// const TABLE_OFFSET_X = 88;
-// const TABLE_OFFSET_Y = 192.1;
-// const TABLE_WIDTH = 420;
-// const TABLE_RIGHT_PADDING = 10;
-// const TABLE_ROW_SPACING = 15;
-// const TABLE_TOP_PADDING = TABLE_ROW_SPACING / 2;
-// const TABLE_COLUMN_SPACING = TABLE_RIGHT_PADDING;
-// const TABLE_ROW_DIVIDER_PADDING = 3;
+import ChoiceField from 'components/ChoiceField.js';
 
-// const WEB_TABLE_COLUMN_SPACING = 6;
-// const MINIFIER_VALUE = 0.28571428571;
-const MINIFIER_VALUE = 0.42857142857;
-const MINIFIED_PADDING = 20;
-const MINIFIED_BOTTOM_PADDING = 10;
-// const OFFSET = 2 * MINIFIER;
-const OFFSET = 2;
-
-const CANVAS_FONT_SIZE = 20 * OFFSET;
-const TABLE_OFFSET_X = 88 * OFFSET;
-const TABLE_OFFSET_Y = 212.1 * OFFSET;
-// const TABLE_OFFSET_Y = 165.1 * OFFSET;
-const TABLE_WIDTH = 420 * OFFSET;
-const TABLE_RIGHT_PADDING = 10 * OFFSET;
-const TABLE_ROW_SPACING = 15 * OFFSET;
-const TABLE_TOP_PADDING = TABLE_ROW_SPACING / 2;
-const TABLE_COLUMN_SPACING = TABLE_RIGHT_PADDING;
-const TABLE_ROW_DIVIDER_PADDING = 3 * OFFSET;
+import './CommitteeResearcher.scss';
 
 const WEB_TABLE_COLUMN_SPACING = 6;
-// { "committee": 1, "class": "الأول", "area": "1/2", "seat-number": 44001 },
 
-const switches = {
+const switchesAr = {
 	'seat-number': 'رقم الجلوس',
 	class: 'الصف',
 	area: 'المكان',
 	committee: 'اللجنة',
 	national: 'رقم الهوية',
 };
-
-const SIZE_CHOICES = {
-	'normal': 'عادي',
-	'miniature': 'مصغر',
-};
-
-const FILE_TYPES = {
-	'pdf': 'PDF مستند',
-	'jpg': 'JPG صورة',
+const switchesEn = {
+	'seat-number': 'Seat Number',
+	class: 'Class',
+	area: 'Area',
+	committee: 'Committee',
+	national: 'Identity Number',
 };
 
 // TODO: download committe pdf document based on selected language
 
-export default function CommitteeResearcher() {
+export default function Barcode() {
 	const [state, _setState] = useState({
-		error: null,
 		field: '',
+		error: null,
 		info: null,
+		infoEn: null,
 		loading: false,
-		anchor: null,
-		sizeOpen: false,
-		sizeChoice: 'normal',
-		fileOpen: false,
-		fileChoice: 'pdf',
+		showReady: false,
+		design: localStorage.getItem('committee-researcher-design-choice-field') || 'normal',
+		file: localStorage.getItem('committee-researcher-file-choice-field') || 'pdf',
+		scale: 100,
 	});
 	const _state = useRef(state);
 	const setState = (data) => {
@@ -88,25 +58,24 @@ export default function CommitteeResearcher() {
 		_setState(data);
 	};
 
-	const { isIDNumberValid, getRTLFieldTheme, loadImage } = useUtilityHook();
+	const { main } = useMainContext();
+	const { switchLocale, getLocaleKey } = useLocaleHook();
+
+	const onLanguageChange = (lang) => {
+		setState({
+			...state,
+			error: null,
+		});
+		switchLocale(lang, '/committee-researcher');
+	};
+
+	const { isIDNumberValid, getRTLFieldTheme, getNullTheme, loadImage, mergeAsObject } = useUtilityHook();
+	const { isArabicDigit, fromArToEnInteger } = useDateHook();
 
 	const pdf = new jsPDF();
 	const field = useRef(null);
 	const canvas = useRef(null);
 	const download = useRef(null);
-
-	const sizeButton = useRef(null);
-	const fileButton = useRef(null);
-
-	const onBlur = (event) => {
-		if (!event.relatedTarget) return;
-
-		if (event.relatedTarget.id == 'main-button') {
-			setTimeout(function () {
-				event.target.focus();
-			}, 20);
-		}
-	};
 
 	const measureText = (text, font) => {
 		let context = canvas.current.getContext('2d');
@@ -119,26 +88,34 @@ export default function CommitteeResearcher() {
 		return measured.width;
 	};
 
-	const handleClose = () => {
-		setState({
-			...state,
-			anchor: null,
-		});
+	const onBlur = (event) => {
+		if (!event.relatedTarget) return;
+
+		if (event.relatedTarget.id == 'main-button') {
+			setTimeout(function () {
+				event.target.focus();
+			}, 20);
+		}
 	};
 
 	const onFieldChange = (event) => {
-		if (event.target.value.trim() == '')
+		let value = event.target.value
+			.split('')
+			.map((character) => (isArabicDigit(character) ? fromArToEnInteger(character) : character))
+			.join('');
+
+		if (value.trim() == '')
 			return setState({
 				...state,
-				field: event.target.value,
+				field: value,
 			});
 
-		if (event.target.value.length > 13 || !isIDNumberValid(event.target.value)) return;
+		if (value.length > 13 || !isIDNumberValid(value)) return;
 
 		setState({
 			...state,
 			error: null,
-			field: event.target.value,
+			field: value,
 		});
 	};
 
@@ -154,6 +131,14 @@ export default function CommitteeResearcher() {
 					area: '1/1',
 					'seat-number': 50000,
 				},
+				infoEn: {
+					national: 123,
+					committee: 10,
+					class: 'Third year',
+					area: '1/1',
+					'seat-number': 50000,
+				},
+				showReady: true,
 			});
 			return;
 		}
@@ -161,44 +146,20 @@ export default function CommitteeResearcher() {
 		if (!isIDNumberValid(state.field)) {
 			return setState({
 				..._state.current,
-				info: null,
-				error: 'حدث خطأ ما',
+				error: main.language == 'en' ? 'An error occured' : 'حدث خطأ ما',
+				showReady: false,
 			});
 		}
-
-		const national = state.field;
 
 		setState({
 			..._state.current,
 			loading: true,
-			info: null,
 			error: null,
 		});
 
-		// try {
-		// .then((response) => {
-		// 	if (response.status >= 400 && response.status < 600) {
-		// 	  throw new Error("Bad response from server");
-		// 	}
-		// 	return response;
-		// }).then((returnedResponse) => {
-		//    // Your response to manipulate
-		//    this.setState({
-		// 	 complete: true
-		//    });
-		// }).catch((error) => {
-		//   // Your error is here!
-		//   console.log(error)
-		// });
-
 		let result = await fetch('/search', {
-			// let result = await fetch('http://localhost:3001/search', {
-			body: JSON.stringify({
-				national: national,
-			}),
-			headers: {
-				'Content-Type': 'application/json',
-			},
+			body: JSON.stringify({ national: state.field }),
+			headers: { 'Content-Type': 'application/json' },
 			method: 'POST',
 		})
 			.then((response) => {
@@ -206,49 +167,36 @@ export default function CommitteeResearcher() {
 					setState({
 						...state,
 						loading: false,
-						info: null,
-						error: 'فشل الوصول إلى الخادم',
+						error: main.language == 'en' ? 'Failed to reach server' : 'فشل الوصول إلى الخادم',
 					});
-					// throw new Error("Bad response from server");
-				} else {
-					return response;
+					return undefined;
 				}
+
+				return response;
 			})
 			.catch((error) => {
 				setState({
 					...state,
 					loading: false,
-					info: null,
 					error: error.toString(),
 				});
 			});
 
 		if (result == undefined) return;
 
-		console.log(result.headers);
-
 		let json = await result.json();
-		// } catch (error) {
-		// 	return setState({
-		// 		...state,
-		// 		loading: false,
-		// 		info: null,
-		// 		error: error.toString(),
-		// 	});
-		// }
 
 		if (json.error)
 			return setState({
 				..._state.current,
 				loading: false,
-				info: null,
 				error: json.reason,
 			});
 
 		delete json.error;
 
 		let keyValues = Object.entries(json);
-		keyValues.splice(0, 0, ['national', national]);
+		keyValues.splice(0, 0, ['national', state.field]);
 		json = Object.fromEntries(keyValues);
 
 		setState({
@@ -256,53 +204,141 @@ export default function CommitteeResearcher() {
 			loading: false,
 			error: null,
 			info: json,
+			showReady: true,
 		});
+	};
+
+	const scaleDimensionsTo = (dimensions, newWidth) => {
+		let { width, height } = dimensions;
+		let ratio = width / newWidth;
+		return {
+			width: width / ratio,
+			height: height / ratio,
+		};
 	};
 
 	const organizeInfo = () => {
 		let texts = [];
 		for (let [key, value] of Object.entries(state.info)) {
 			texts.push({
-				name: switches[key],
+				name: switchesAr[key],
 				value: value,
 			});
 		}
 		return texts;
 	};
 
-	const getInfoAsBase64 = async (minifier = 1, backgroundImage = null, settings = null) => {
-		let {
-			canvas_font_size,
-			table_row_spacing,
-			table_top_padding,
-			table_row_divider_padding,
-			table_offset_x,
-			table_offset_y,
-			table_width,
-			table_right_padding,
-			table_column_spacing,
-			minified_padding,
-			minified_bottom_padding,
-		} = settings || {
-			'canvas_font_size': CANVAS_FONT_SIZE,
-			'table_offset_x': TABLE_OFFSET_X,
-			'table_offset_y': TABLE_OFFSET_Y,
-			'table_width': TABLE_WIDTH,
-			'table_right_padding': TABLE_RIGHT_PADDING,
-			'table_row_spacing': TABLE_ROW_SPACING,
-			'table_top_padding': TABLE_TOP_PADDING,
-			'table_column_spacing': TABLE_COLUMN_SPACING,
-			'table_row_divider_padding': TABLE_ROW_DIVIDER_PADDING,
-			'minified_padding': 0,
-			'minified_bottom_padding': 0,
-		};
+	const getCommitteeDataDocumentedNormal = async () => {
+		let offset = 2;
+
+		let canvas_font_size = 20 * offset;
+		let table_offset_x = 88 * offset;
+		let table_offset_y = 212.1 * offset;
+		let table_width = 420 * offset;
+		let table_right_padding = 10 * offset;
+		let table_row_spacing = 15 * offset;
+		let table_top_padding = table_row_spacing / 2;
+		let table_column_spacing = table_right_padding;
+		let table_row_divider_padding = 3 * offset;
 
 		var ctx = canvas.current.getContext('2d');
 		let context = new CanvasContext(ctx);
 
 		let texts = organizeInfo();
 
-		let background = await loadImage(backgroundImage || pdfBackground);
+		let background = await loadImage(bgNormal);
+
+		canvas.current.width = background.width;
+		canvas.current.height = background.height;
+		// ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+		ctx.fillStyle = 'white';
+		ctx.fillRect(0, 0, background.width, background.height);
+		ctx.fillStyle = 'black';
+		ctx.drawImage(background.image, 0, 0, background.width, background.height);
+
+		// ctx.strokeStyle = '#8F8F8F';
+		ctx.strokeStyle = 'black';
+
+		const tableHeight = canvas_font_size + (texts.length - 1) * (canvas_font_size + table_row_spacing) + table_top_padding + table_row_spacing / 2 + table_row_divider_padding;
+		context.line(table_offset_x, table_offset_y, table_offset_x + table_width, table_offset_y);
+		context.line(table_offset_x + table_width, table_offset_y, table_offset_x + table_width, table_offset_y + tableHeight);
+		ctx.font = `${canvas_font_size}px Arial`;
+
+		let maxWidth = texts.map(({ name, value }) => ctx.measureText(name).width).sort((a, b) => b - a)[0];
+
+		for (let i = 0; i < texts.length; i++) {
+			let text = texts[i];
+			let { name, value } = text;
+
+			ctx.font = `${canvas_font_size}px Arial`;
+
+			ctx.fillText(
+				name,
+				table_offset_x + table_width - ctx.measureText(name).width - table_right_padding,
+				canvas_font_size + table_offset_y + i * (canvas_font_size + table_row_spacing) + table_top_padding
+			);
+
+			let y = canvas_font_size + table_offset_y + i * (canvas_font_size + table_row_spacing) + table_top_padding + table_row_spacing / 2 + table_row_divider_padding;
+
+			context.line(table_offset_x, y, table_offset_x + table_width, y);
+
+			ctx.fillText(
+				value,
+				table_offset_x + table_width - ctx.measureText(value).width - table_right_padding * 2 - maxWidth - table_column_spacing,
+				canvas_font_size + table_offset_y + i * (canvas_font_size + table_row_spacing) + table_top_padding
+			);
+		}
+
+		context.line(
+			table_offset_x + table_width - maxWidth - table_right_padding - table_column_spacing,
+			table_offset_y,
+			table_offset_x + table_width - maxWidth - table_right_padding - table_column_spacing,
+			table_offset_y + tableHeight
+		);
+
+		context.line(table_offset_x, table_offset_y, table_offset_x, table_offset_y + tableHeight);
+
+		let warning = 'احذر كتابة اسمك ، هويتك الوطنية سرية';
+		ctx.font = `60px custom-arabic`;
+
+		// Add scissors and dashed line
+		// ctx.fillText(warning, ctx.canvas.width / 2 - ctx.measureText(warning).width / 2, table_offset_y + tableHeight + 30 * 2 + 65);
+		ctx.fillText(warning, ctx.canvas.width / 2 - ctx.measureText(warning).width / 2, table_offset_y + tableHeight + (30 * 2 + 65));
+		context.line(0, table_offset_y + tableHeight + 30 * 2, ctx.canvas.width, table_offset_y + tableHeight + 30 * 2);
+		ctx.strokeStyle = '#8F8F8F';
+
+		context.line(0, table_offset_y + tableHeight + (30 * 2 + 100), ctx.canvas.width, table_offset_y + tableHeight + (30 * 2 + 100), [(10, 5)]);
+		context.line(ctx.canvas.width, 0, ctx.canvas.width, ctx.canvas.height, [10, 5]);
+
+		let scissors = await loadImage(scissorsIcon);
+		let size = 32;
+
+		ctx.drawImage(scissors.image, 50, table_offset_y + tableHeight + (30 * 2 + 100) - size / 2, size, size);
+
+		return ctx.canvas.toDataURL('image/jpeg');
+	};
+	const getCommitteeDataDocumentedMiniature = async () => {
+		let minifier = 0.42857142857;
+		let minified_padding = 20;
+		let minified_bottom_padding = 10;
+		let offset = 2;
+
+		let canvas_font_size = 20 * offset * minifier;
+		let table_offset_x = (88 + minified_padding) * offset * minifier;
+		let table_offset_y = (165.1 + minified_padding) * offset * minifier;
+		let table_width = 420 * offset * minifier;
+		let table_right_padding = 10 * offset * minifier;
+		let table_row_spacing = 15 * offset * minifier;
+		let table_top_padding = (table_row_spacing / 2) * minifier;
+		let table_column_spacing = table_right_padding * minifier;
+		let table_row_divider_padding = 3 * offset * minifier;
+
+		var ctx = canvas.current.getContext('2d');
+		let context = new CanvasContext(ctx);
+
+		let texts = organizeInfo();
+
+		let background = await loadImage(bgMinified);
 
 		canvas.current.width = background.width;
 		canvas.current.height = background.height;
@@ -375,124 +411,87 @@ export default function CommitteeResearcher() {
 
 		let scissors = await loadImage(scissorsIcon);
 		let size = 32 * minifier;
-		if (minifier != 1) {
-			// const drawRotatedImage = (ctx, image, x, y, width, height, angle) => {
-			// ctx.drawImage(scissors.image, 50 * minifier, table_offset_y + tableHeight + (30 * 2 + 100) * minifier - size / 2, size, size);
-			context.rotatedImage(
-				scissors.image,
-				(ctx.canvas.width + 50) * minifier + minified_padding * 2,
-				table_offset_y + tableHeight + (30 * 2 + 100) * minifier - size / 2 + minified_padding - minified_bottom_padding,
-				size,
-				size,
-				180
-			);
-			context.rotatedImage(
-				scissors.image,
-				ctx.canvas.width * minifier + size / 2 + minified_padding * 2,
-				table_offset_y + tableHeight + (30 * 2 + 166) * minifier - size / 2 + minified_padding - minified_bottom_padding,
-				size,
-				size,
-				270
-			);
-		} else {
-			ctx.drawImage(scissors.image, 50 * minifier, table_offset_y + tableHeight + (30 * 2 + 100) * minifier - size / 2, size, size);
-		}
+
+		context.rotatedImage(
+			scissors.image,
+			(ctx.canvas.width + 50) * minifier + minified_padding * 2,
+			table_offset_y + tableHeight + (30 * 2 + 100) * minifier - size / 2 + minified_padding - minified_bottom_padding,
+			size,
+			size,
+			180
+		);
+		context.rotatedImage(
+			scissors.image,
+			ctx.canvas.width * minifier + size / 2 + minified_padding * 2,
+			table_offset_y + tableHeight + (30 * 2 + 166) * minifier - size / 2 + minified_padding - minified_bottom_padding,
+			size,
+			size,
+			270
+		);
+
 		// if(minifier)
 
 		return ctx.canvas.toDataURL('image/jpeg');
 	};
 
-	const getScaledInfo = async (minified = false) => {
-		return await getInfoAsBase64(
-			minified ? MINIFIER_VALUE : 1,
-			minified ? pdfBackgroundMinified : pdfBackground,
-			minified
-				? {
-						canvas_font_size: 20 * OFFSET * MINIFIER_VALUE,
-						table_offset_x: (88 + MINIFIED_PADDING) * OFFSET * MINIFIER_VALUE,
-						table_offset_y: (165.1 + MINIFIED_PADDING) * OFFSET * MINIFIER_VALUE,
-						table_width: 420 * OFFSET * MINIFIER_VALUE,
-						table_right_padding: 10 * OFFSET * MINIFIER_VALUE,
-						table_row_spacing: 15 * OFFSET * MINIFIER_VALUE,
-						table_top_padding: (TABLE_ROW_SPACING / 2) * MINIFIER_VALUE,
-						table_column_spacing: TABLE_RIGHT_PADDING * MINIFIER_VALUE,
-						table_row_divider_padding: 3 * OFFSET * MINIFIER_VALUE,
-						minified_padding: MINIFIED_PADDING,
-						minified_bottom_padding: MINIFIED_BOTTOM_PADDING,
-				  }
-				: null
-		);
+	const getCommitteeDataDocumented = async () => {
+		let data;
+		let direction = main.language == 'ar' ? 'rtl' : 'ltr';
+
+		if (state.design == 'normal') {
+			data = await getCommitteeDataDocumentedNormal(direction, state.scale / 100);
+		} else {
+			data = await getCommitteeDataDocumentedMiniature(direction, state.scale / 100);
+		}
+
+		return data;
 	};
 
-	const scaleDimensionsTo = (dimensions, newWidth) => {
-		let { width, height } = dimensions;
-		let ratio = width / newWidth;
-		return {
-			width: width / ratio,
-			height: height / ratio,
-		};
-	};
+	const saveAsPhoto = async () => {
+		let data = await getCommitteeDataDocumented();
 
-	const saveAsPhoto = async (minified = false) => {
-		let data = await getScaledInfo(minified);
 		download.current.href = data;
 		download.current.click();
 	};
 
-	const saveAsDocument = async (minified = false) => {
-		let data = await getScaledInfo(minified);
-		let image = scaleDimensionsTo(await getImageDimensions(data), 210);
+	const saveAsDocument = async () => {
+		let data = await getCommitteeDataDocumented();
+		let image = scaleDimensionsTo(await loadImage(data), 210);
 
 		pdf.addImage(data, 0, 0, image.width, image.height);
 		pdf.save('اللجنة');
 	};
 
-	const getImageDimensions = (base64) => {
-		return new Promise((resolve, reject) => {
-			let image = document.createElement('img');
-			image.onload = function () {
-				resolve({
-					width: this.width,
-					height: this.height,
-				});
-				image.remove();
-			};
-			image.src = base64;
-		});
-	};
-
-	const onSave = (event) => {
-		// console.log('save');
-
-		switch (state.fileChoice) {
+	const onSave = () => {
+		switch (state.file) {
 			case 'pdf':
-				saveAsDocument(state.sizeChoice == 'miniature');
+				saveAsDocument();
 				break;
 			case 'jpg':
-				saveAsPhoto(state.sizeChoice == 'miniature');
+				saveAsPhoto();
 				break;
 		}
-
-		// setState({
-		// ...state,
-		// anchor: event.currentTarget,
-		// });
 	};
 
 	useEffect(() => {
-		// Load custom-arabic
+		// Load oldink
 		let ctx = canvas.current.getContext('2d');
 		ctx.font = 'normal 18px custom-arabic';
 		ctx.fillStyle = 'black';
 		ctx.fillText('123', 50, 50);
 		ctx.clearRect(0, 0, canvas.current.width, canvas.current.height);
+		switchLocale(main.language, '/committee-researcher');
 	}, []);
 
 	return (
 		<ThemeProvider
-			theme={getRTLFieldTheme({
-				shadows: ['none'],
-			})}
+			theme={
+				main.language == 'ar'
+					? getRTLFieldTheme({
+							shadows: ['none'],
+					  })
+					: getNullTheme({ shadows: ['none'] })
+			}
 			// theme={theme}
 		>
 			<div
@@ -508,16 +507,25 @@ export default function CommitteeResearcher() {
 				}}
 			>
 				<canvas ref={canvas} width='400' height='150'></canvas>
+
+				{/* <canvas ref={canvas} width='1920' height='150' style={{ margin: '15px 0px 0px 15px', backgroundColor: 'white' }}></canvas> */}
 				<a ref={download} download='اللجنة.jpeg' />
 			</div>
 
-			<div id='committee-researcher-page' className='App page'>
+			<div
+				id='committee-researcher-page'
+				className='App page'
+				style={{
+					zIndex: '-10',
+				}}
+			>
 				<div style={{ width: '100%', paddingLeft: '3.125vw', paddingRight: '3.125vw', boxSizing: 'border-box', zIndex: '5' }}>
-					<Header />
+					<Header onLanguageChange={onLanguageChange} />
 				</div>
 				<div id='main'>
 					<div id='top'>
 						<div
+							data-locale-key='title'
 							id='title'
 							style={{
 								marginBottom: '30px',
@@ -526,26 +534,28 @@ export default function CommitteeResearcher() {
 								textAlign: 'center',
 								fontFamily: 'segoeui',
 							}}
-						>
-							ابحث عن معلومات اللجنة
-						</div>
-						<div id='interactables'>
+						></div>
+
+						<div className={`interactables${main.language == 'en' ? ' interactables-en' : ''}`}>
 							<LoadingButton
-								id='main-button'
+								className={`main-button${main.language == 'en' ? ' main-button-en' : ''}`}
 								loading={state.loading}
 								variant='contained'
 								style={{
 									height: '62px',
 									fontSize: '20px',
+									textTransform: 'none',
 								}}
 								onClick={onRequestSearch}
 							>
-								ابحث
+								<div data-locale-key='regenerate-btn'>إعادة إنشاء</div>
 							</LoadingButton>
 
 							<TextField
 								ref={field}
-								type='number'
+								style={{
+									textAlign: 'right',
+								}}
 								sx={{
 									width: '100%',
 									height: '62px',
@@ -563,8 +573,11 @@ export default function CommitteeResearcher() {
 										height: '62px',
 									},
 								}}
+								inputProps={{
+									style: { textAlign: main.language == 'ar' ? 'right' : 'left' },
+								}}
 								id='main-field'
-								label='رقم الهوية'
+								label={getLocaleKey(main.language, '/committee-researcher', 'field-label')}
 								value={state.field}
 								onChange={onFieldChange}
 								onBlur={onBlur}
@@ -604,225 +617,170 @@ export default function CommitteeResearcher() {
 								// textOverflow: 'ellipsis?',
 								wordBreak: 'break-word',
 								fontSize: '18px',
-								justifyContent: 'flex-end',
+								justifyContent: main.language == 'en' ? 'flex-start' : 'flex-end',
 							}}
 						>
 							{state.error}
 						</div>
 
-						{state.info && (
+						<div
+							id='info-area'
+							style={{
+								display: state.showReady ? 'flex' : 'none',
+								flexDirection: 'column',
+								marginTop: '10px',
+							}}
+						>
 							<div
-								id='info-area'
 								style={{
-									display: 'flex',
-									flexDirection: 'column',
-									marginTop: '10px',
+									border: '1px solid #C4C4C4',
+									borderRadius: '5px',
+									fontSize: '18px',
+									// paddingRight: '10px',
+									marginBottom: '10px',
 								}}
 							>
-								<div
-									style={{
-										border: '1px solid #C4C4C4',
-										borderRadius: '5px',
-										fontSize: '18px',
-										// paddingRight: '10px',
-										marginBottom: '10px',
-									}}
-								>
-									{Object.entries(state.info).map(([key, value], index) => {
-										let maximum = Object.keys(state.info)
-											.map((key) => measureText(switches[key], '18px custom-arabic'))
-											.sort((a, b) => b - a)[0];
+								{state.info != null
+									? Object.entries(main.language == 'en' ? state.infoEn : state.info).map(([key, value], index) => {
+											let switches = main.language == 'en' ? switchesEn : switchesAr;
+											let font = 'custom-arabic';
 
-										let self = measureText(switches[key], '18px custom-arabic');
+											let maximum = Object.keys(state.info)
+												.map((key) => measureText(switches[key], `18px ${font}`))
+												.sort((a, b) => b - a)[0];
 
-										return (
-											<div
-												key={`info-item-${index}`}
-												style={{
-													width: '100%',
-												}}
-											>
+											let self = measureText(switches[key], `18px $[font}`);
+
+											return (
 												<div
+													key={`info-item-${index}`}
 													style={{
-														display: 'flex',
-														flexDirection: 'row',
 														width: '100%',
-														justifyContent: 'flex-start',
-														paddingRight: '10px',
-														boxSizing: 'border-box',
 													}}
 												>
 													<div
 														style={{
 															display: 'flex',
-															alignItems: 'center',
-															textAlign: 'center',
-															wordBreak: 'break-word',
-															flexDirection: 'row-reverse',
+															flexDirection: 'row',
 															width: '100%',
-															fontFamily: 'custom-arabic',
+															justifyContent: 'flex-start',
+															padding: main.language == 'en' ? '0px 0px 0px 10px' : '0px 10px 0px 0px',
+															boxSizing: 'border-box',
 														}}
 													>
-														{switches[key]}
-														<Divider
+														<div
 															style={{
-																height: '100%',
-																backgroundColor: '#C4C4C4',
-																marginLeft: `${WEB_TABLE_COLUMN_SPACING}px`,
-																marginRight: `${maximum - self + WEB_TABLE_COLUMN_SPACING}px`,
+																display: 'flex',
+																alignItems: 'center',
+																textAlign: 'center',
+																wordBreak: 'break-word',
+																flexDirection: main.language == 'en' ? 'row' : 'row-reverse',
+																width: '100%',
+																fontFamily: font,
 															}}
-															orientation='vertical'
-														/>
-														<span style={{ fontFamily: 'Arial' }}>{value}</span>
+														>
+															{switches[key]}
+															<Divider
+																style={{
+																	height: '100%',
+																	backgroundColor: '#C4C4C4',
+																	margin: main.language == 'en' ? `0px ${6}px 0px ${maximum - self + 6}px` : `0px ${maximum - self + 6}px 0px ${6}px`,
+																}}
+																orientation='vertical'
+															/>
+															<span style={{ fontFamily: 'Arial' }}>{value}</span>
+														</div>
 													</div>
+													{index != Object.keys(state.info).length - 1 && <Divider style={{ width: '100%', backgroundColor: '#C4C4C4' }} />}
 												</div>
-												{index != Object.keys(state.info).length - 1 && <Divider style={{ width: '100%', backgroundColor: '#C4C4C4' }} />}
-											</div>
-										);
-									})}
-								</div>
+											);
+									  })
+									: null}
+							</div>
+
+							<div
+								style={{
+									width: '100%',
+									display: 'flex',
+									justifyContent: 'center',
+									alignItems: 'center',
+									flexDirection: 'column',
+								}}
+								id='interactable-buttons'
+							>
+								<ChoiceField
+									choices={mergeAsObject(['normal', 'miniature'], getLocaleKey(main.language, '/committee-researcher', 'design-field-choices'))}
+									default='normal'
+									onChange={(id) => {
+										setState({
+											...state,
+											design: id,
+										});
+									}}
+									name={getLocaleKey(main.language, '/committee-researcher', 'design-field-name')}
+									language={main.language}
+									id='committee-researcher-design-choice-field'
+								/>
+
+								<ChoiceField
+									choices={mergeAsObject(['pdf', 'jpg'], getLocaleKey(main.language, '/committee-researcher', 'file-field-choices'))}
+									default='pdf'
+									onChange={(id) => {
+										setState({
+											...state,
+											file: id,
+										});
+									}}
+									name={getLocaleKey(main.language, '/committee-researcher', 'file-field-name')}
+									language={main.language}
+									id='committee-researcher-file-choice-field'
+								/>
 
 								<div
+									className='option-box'
 									style={{
-										width: '100%',
 										display: 'flex',
-										justifyContent: 'center',
+										flexDirection: main.language == 'ar' ? 'row-reverse' : 'row',
 										alignItems: 'center',
-										flexDirection: 'column',
+										justifyContent: 'space-between',
+										padding: '0px 10px 0px 10px',
 									}}
-									id='interactable-buttons'
 								>
-									<Button className='select-button' variant='contained' onClick={() => setState({ ...state, sizeOpen: true })} ref={sizeButton}>
-										<KeyboardArrowDownIcon />
-
-										<div
-											style={{
-												display: 'flex',
-												flexDirection: 'row',
-											}}
-										>
-											<span style={{ color: 'gray' }}>{SIZE_CHOICES[state.sizeChoice]}</span>&nbsp;:نوع التصميم
-										</div>
-									</Button>
-									<SelectMenu
-										anchor={sizeButton.current}
+									<div
+										data-locale-key='scale-slider'
 										style={{
-											width: '100%',
-										}}
-										open={state.sizeOpen}
-										selected={state.sizeChoice}
-										onClose={() => setState({ ...state, sizeOpen: false })}
-										onChange={(id) => {
-											setState({
-												...state,
-												sizeOpen: false,
-												sizeChoice: id,
-											});
-										}}
-										options={Object.entries(SIZE_CHOICES).map(([key, value]) => {
-											return {
-												id: key,
-												name: value,
-											};
-										})}
-										MenuListSx={{
-											border: '1px solid #b2b9bc',
-											boxSizing: 'border-box',
-										}}
-										sx={{
-											marginTop: '5px',
-										}}
-										dir='rtl'
-									/>
-
-									<Button className='select-button' variant='contained' onClick={() => setState({ ...state, fileOpen: true })} ref={fileButton}>
-										<KeyboardArrowDownIcon />
-
-										<div
-											style={{
-												display: 'flex',
-												flexDirection: 'row',
-											}}
-										>
-											<span style={{ color: 'gray' }}>{FILE_TYPES[state.fileChoice]}</span>&nbsp;:نوع الملف
-										</div>
-									</Button>
-
-									<SelectMenu
-										anchor={fileButton.current}
-										open={state.fileOpen}
-										selected={state.fileChoice}
-										onClose={() => setState({ ...state, fileOpen: false })}
-										onChange={(id) => {
-											setState({
-												...state,
-												fileOpen: false,
-												fileChoice: id,
-											});
-										}}
-										options={Object.entries(FILE_TYPES).map(([key, value]) => {
-											return {
-												id: key,
-												name: value,
-											};
-										})}
-										MenuListSx={{
-											border: '1px solid #b2b9bc',
-											boxSizing: 'border-box',
-										}}
-										sx={{
-											marginTop: '5px',
-										}}
-										dir='rtl'
-									/>
-
-									<Button variant='contained' onClick={onSave} style={{ width: '100%' }}>
-										حفظ
-									</Button>
-
-									<Menu
-										anchorEl={state.anchor}
-										open={state.anchor != null}
-										onClose={handleClose}
-										sx={{
-											marginTop: '2px',
-										}}
-										MenuListProps={{
-											sx: {
-												backgroundColor: '#1976D2',
-												width: '140px',
-												color: 'white',
-											},
+											direction: main.language == 'ar' ? 'rtl' : 'ltr',
+											width: 'max-content',
+											margin: main.language == 'ar' ? '0px 0px 0px 15px' : '0px 10px 0px 0px',
+											whiteSpace: 'nowrap',
 										}}
 									>
-										<MenuItem
-											onClick={() => {
-												saveAsDocument(true);
-												handleClose();
-											}}
-										>
-											PDF&nbsp;<span>كمستند مصغر</span>
-										</MenuItem>
-										<MenuItem
-											onClick={() => {
-												saveAsDocument();
-												handleClose();
-											}}
-										>
-											PDF&nbsp;<span>كمستند</span>
-										</MenuItem>
-										<MenuItem
-											onClick={() => {
-												saveAsPhoto();
-												handleClose();
-											}}
-										>
-											JPG&nbsp;<span>كصورة</span>
-										</MenuItem>
-									</Menu>
+										نسبة قياس الحجم:
+									</div>
+									<Slider
+										sx={{
+											width: '70%',
+										}}
+										size='small'
+										max={200}
+										value={state.scale}
+										onChange={(event) => {
+											setState({
+												...state,
+												scale: event.target.value,
+											});
+										}}
+									/>
+									<div style={{ margin: main.language == 'ar' ? '0px 10px 0px 0px' : '0px 0px 0px 15px', textAlign: 'left' }}>{state.scale}%</div>
 								</div>
+
+								<Button className='save-button' variant='contained' onClick={onSave} style={{ width: '100%', textTransform: 'none', display: 'flex', alignItems: 'center' }}>
+									<div data-locale-key='save-button' style={{ lineHeight: '1em' }}>
+										حفظ
+									</div>
+								</Button>
 							</div>
-						)}
+						</div>
 					</div>
 				</div>
 			</div>

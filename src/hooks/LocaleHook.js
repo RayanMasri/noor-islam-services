@@ -1,9 +1,11 @@
 import landingData from 'page-locales/landing-locale.json';
 import barcodeData from 'page-locales/barcode-locale.json';
+import committeeResearcherData from 'page-locales/committee-researcher-locale.json';
 
 const references = {
 	'/': landingData,
 	'/barcode': barcodeData,
+	'/committee-researcher': committeeResearcherData,
 };
 
 // TODO: Remove prefix of "landing-" in each item of landing-locale.json

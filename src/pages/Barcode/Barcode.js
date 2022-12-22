@@ -3,20 +3,10 @@ import { TextField, Button, Divider, Slider } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { LoadingButton } from '@mui/lab';
 
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-// import Menu from '@mui/material/Menu';
-import SelectMenu from 'components/SelectMenu.js';
-
-import MenuItem from '@mui/material/MenuItem';
 import jsPDF from 'jspdf';
-import pdfBackground from '../../icons/background.png';
-import pdfBackgroundMinified from '../../icons/background-minified.png';
 import scissorsIcon from '../../icons/scissors.png';
-// import maarifLogo from './maarif-logo-160.png';
 import Header from '../../components/Header.js';
-import Menu from 'components/Menu.js';
 
-import './Barcode.css';
 import useUtilityHook from 'hooks/UtilityHook.jsx';
 import CanvasContext from 'hooks/CanvasContext.js';
 
@@ -30,7 +20,9 @@ import useLocaleHook from 'hooks/LocaleHook.js';
 import useDateHook from 'hooks/DateHook.jsx';
 import { useMainContext } from 'contexts/MainContext.jsx';
 
-import ChoiceField from './ChoiceField.js';
+import ChoiceField from 'components/ChoiceField.js';
+
+import './Barcode.scss';
 
 // import Barcode from 'react-jsbarcode';
 // import JsBarcode from 'jsbarcode';
@@ -77,6 +69,10 @@ export default function Barcode() {
 	const { switchLocale, getLocaleKey } = useLocaleHook();
 
 	const onLanguageChange = (lang) => {
+		setState({
+			...state,
+			error: null,
+		});
 		switchLocale(lang, '/barcode');
 	};
 
@@ -88,8 +84,6 @@ export default function Barcode() {
 	const canvas = useRef(null);
 	const showcaseCanvas = useRef(null);
 	const download = useRef(null);
-	const designButton = useRef(null);
-	const fileButton = useRef(null);
 
 	const onBlur = (event) => {
 		if (!event.relatedTarget) return;
@@ -126,7 +120,7 @@ export default function Barcode() {
 		if (!isIDNumberValid(state.field)) {
 			return setState({
 				..._state.current,
-				error: 'حدث خطأ ما',
+				error: main.language == 'en' ? 'An error occured' : 'حدث خطأ ما',
 				showReady: false,
 			});
 		}
@@ -145,17 +139,6 @@ export default function Barcode() {
 			error: null,
 			showReady: true,
 		});
-	};
-
-	const getWhiteImage = (width, height) => {
-		let ctx = canvas.current.getContext('2d');
-
-		canvas.current.width = width;
-		canvas.current.height = height;
-		ctx.fillStyle = 'white';
-		ctx.fillRect(0, 0, width, height);
-
-		return ctx.canvas.toDataURL('image/jpeg');
 	};
 
 	const getBarcodeDocumentedOriginal = async (direction = 'rtl', scale = 1) => {
@@ -499,7 +482,7 @@ export default function Barcode() {
 				<canvas ref={canvas} width='400' height='150'></canvas>
 
 				{/* <canvas ref={canvas} width='1920' height='150' style={{ margin: '15px 0px 0px 15px', backgroundColor: 'white' }}></canvas> */}
-				<a ref={download} download='اللجنة.jpeg' />
+				<a ref={download} download='الباركود.jpeg' />
 			</div>
 
 			<div
@@ -607,7 +590,7 @@ export default function Barcode() {
 								// textOverflow: 'ellipsis?',
 								wordBreak: 'break-word',
 								fontSize: '18px',
-								justifyContent: 'flex-end',
+								justifyContent: main.language == 'en' ? 'flex-start' : 'flex-end',
 							}}
 						>
 							{state.error}
