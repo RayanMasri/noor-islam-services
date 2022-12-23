@@ -2,74 +2,60 @@ import React from 'react';
 import { Divider } from '@mui/material';
 import useDateHook from 'hooks/DateHook';
 import { useMediaPredicate } from 'react-media-hook';
+import { useMainContext } from 'contexts/MainContext.jsx';
+import useLocaleHook from 'hooks/LocaleHook.js';
 
 export default function Month(props) {
-	const { fromEnToArWeekday, fromEnToArInteger, getHijriDate, compareDatesByDay } = useDateHook();
+	const { main } = useMainContext();
+	const { fromEnToArWeekday, fromEnToArInteger, getHijriDate, compareDatesByDay, hijriMonthEnToAr } = useDateHook();
+	const { getLocaleKey } = useLocaleHook();
+
+	const max1130 = useMediaPredicate('(max-width: 1130px)');
 
 	const getItemByStatus = (item) => {
 		// let date = getHijriDate(item.day, props.monthIndex, 1444);
 
 		// console.log(date);
-
 		switch (item.status) {
-			case 'normal':
+			case undefined:
 				return (
 					<div
 						className='month-column-item'
 						style={{
 							// border: compareDatesByDay(date, new Date()) ? '3px solid #233262' : '1px solid #707070',
 							border: '1px solid #707070',
+							flexDirection: main.language == 'en' ? 'row-reverse' : 'row',
 						}}
 					>
 						<div className='month-column-item-day' style={{ color: '#D68C45' }}>
-							{fromEnToArInteger(item.day)}
+							{main.language == 'en' ? item.day : fromEnToArInteger(item.day)}
 						</div>
 						{/* <Divider style={{ width: 'calc(100% + 15px)', backgroundColor: '#707070', marginTop: '10px', marginBottom: '10px', marginRight: '-15px' }} /> */}
-						<div className='month-column-item-info'>{item.info}</div>
+						<div
+							className='month-column-item-info'
+							style={{
+								textAlign: main.language == 'en' ? 'left' : 'right',
+								padding: max1130 ? (main.language == 'en' ? '0px 5px 0px 0px' : '0px 0px 0px 5px') : '0px',
+							}}
+						>
+							{item.value}
+						</div>
 					</div>
 				);
 
 			case 'trespass':
 				return (
 					<div className='month-column-item-trespass'>
-						<div>{item.month}</div>
+						<div>{main.language == 'en' ? item.month : hijriMonthEnToAr(item.month)}</div>
 						<div>-</div>
-						<div>{fromEnToArInteger(item.day)}</div>
+						<div>{main.language == 'en' ? item.day : fromEnToArInteger(item.day)}</div>
 					</div>
 				);
 
 			case 'none':
 				return (
-					<div className='month-column-item-none'>
-						هذا الشهر لا يحتوي على أي إجازات
-						{/* <svg
-							height='100%'
-							width='100%'
-							style={{
-								borderRadius: '18px', // 20px - 2px (border width * 2)
-							}}
-						>
-							<line
-								x1='0px'
-								y1='0px'
-								x2='100%'
-								y2='100%'
-								style={{
-									stroke: '#707070',
-									strokeWidth: 1,
-								}}
-							/>
-							<line
-								x1='0'
-								y1='100%'
-								x2='100%'
-								y2='0'
-								style={{
-									stroke: '#707070',
-									strokeWidth: 1,
-								}}
-							/>
-						</svg> */}
+					<div className='month-column-item-none' data-locale-key='day-value-none'>
+						{getLocaleKey(main.language, '/schedule', 'day-value-none')}
 					</div>
 				);
 			case 'filler':
@@ -77,8 +63,7 @@ export default function Month(props) {
 					<div
 						className='month-column-item'
 						style={{
-							// border: compareDatesByDay(date, new Date()) ? '3px solid #233262' : '1px solid #707070',
-							border: '1px solid #707070',
+							display: 'none',
 						}}
 					></div>
 				);
@@ -99,17 +84,14 @@ export default function Month(props) {
 	};
 
 	const getSimplifiedColumns = () => {
-		let data = Object.values(props.columns)
-			.flat()
-			.filter((item) => item.info != '' && item.status == 'normal')
-			.sort((a, b) => b.day - a.day);
+		let data = props.days.filter((item) => item.value);
 
 		if (data.length < 1) data.push({ status: 'none' });
 
 		return data;
 	};
 
-	const adjust = useMediaPredicate('(max-width: 700px)');
+	const max700 = useMediaPredicate('(max-width: 700px)');
 
 	// console.log(props.month);
 	// for (let [key, value] of Object.entries(props.columns)) {
@@ -126,31 +108,43 @@ export default function Month(props) {
 			style={{
 				display: 'flex',
 				flexDirection: 'column',
-				alignItems: 'flex-end',
+				alignItems: main.language == 'en' ? 'flex-start' : 'flex-end',
 				justifyContent: 'center',
 				width: '100%',
 			}}
 		>
 			<div className='month-title' style={{ color: '#233262' }}>
-				{props.month}
+				{main.language == 'en' ? props.month : hijriMonthEnToAr(props.month)}
 			</div>
 
-			<div className='month-header'>
-				<div className='month-header-item'>الأحد</div>
-				<div className='month-header-item'>الأثنين</div>
-				<div className='month-header-item'>الثلاثاء</div>
-				<div className='month-header-item'>الأربعاء</div>
-				<div className='month-header-item'>الخميس</div>
+			<div
+				className='month-header'
+				style={{
+					flexDirection: main.language == 'en' ? 'row' : 'row-reverse',
+				}}
+			>
+				{(main.language == 'en' ? ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'] : ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس']).map((item) => {
+					return (
+						<div className='month-header-item' style={{ textAlign: main.language == 'en' ? 'left' : 'right' }}>
+							{item}
+						</div>
+					);
+				})}
 			</div>
 
 			<div
 				className='month-content'
 				style={{
 					width: '100%',
+					flexDirection: main.language == 'en' ? 'row' : 'row-reverse',
 				}}
 			>
-				{(adjust ? getSimplifiedColumns() : getFlattenedColumns()).map((item) => {
-					return <div className='month-column-item-holder'>{getItemByStatus(item)}</div>;
+				{(max700 ? getSimplifiedColumns() : props.days).map((item, index) => {
+					return (
+						<div className='month-column-item-holder' key={`item-${index}-${props.month}-${props.semester}`}>
+							{getItemByStatus(item)}
+						</div>
+					);
 				})}
 			</div>
 			{/* <div

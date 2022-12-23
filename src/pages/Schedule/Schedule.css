@@ -15,14 +15,16 @@ input::-webkit-inner-spin-button {
 	width: 302px;
 	margin-bottom: 15px;
 	font-size: 20px;
-	text-align: right;
 }
 
 .month-header {
 	display: flex;
-	flex-direction: row-reverse;
 	justify-content: space-between;
 	width: 100%;
+}
+
+.month:not(:last-child) {
+	margin-bottom: 10px;
 }
 
 .month-column-item-trespass {
@@ -58,7 +60,6 @@ input::-webkit-inner-spin-button {
 }
 
 .month-column-item > .month-column-item-info {
-	text-align: right;
 	font-size: 16px;
 }
 
@@ -73,7 +74,6 @@ input::-webkit-inner-spin-button {
 	/* background-color: white; */
 
 	/* flex-direction: column; */
-	flex-direction: row;
 	justify-content: space-between;
 	align-items: center;
 	width: 100%;
@@ -90,13 +90,20 @@ input::-webkit-inner-spin-button {
 	width: 302px;
 	height: 40px;
 	/* box-sizing: border-box; */
+}
+
+.month-column-item-holder:not(:last-child) {
 	margin-bottom: 20px;
 }
 
 .semester-header-button {
 	width: 64px;
 	height: 64px;
-	margin-right: 15px !important;
+	margin: 0px 15px 0px 0px !important;
+}
+
+.semester-header-en > .semester-header-button {
+	margin: 0px 0px 0px 15px !important;
 }
 
 .semester-header-button-icon {
@@ -106,11 +113,17 @@ input::-webkit-inner-spin-button {
 
 .semester-header-number {
 	margin: 4px 0px 0px 15px;
-	padding-top: 10px;
-	font-size: 70px;
 	width: 64px;
 	height: 64px;
+	font-size: 70px;
+	padding-top: 10px;
 	border-radius: 1000px;
+}
+
+.semester-header-en > div:last-child > .semester-header-number {
+	margin: 4px 15px 0px 0px;
+	font-size: 50px;
+	padding-top: 0px;
 }
 
 .semester-header-title {
@@ -130,7 +143,6 @@ input::-webkit-inner-spin-button {
 .month-content {
 	display: flex;
 	flex-wrap: wrap;
-	flex-direction: row-reverse;
 	justify-content: space-between;
 	width: 100%;
 }
@@ -193,9 +205,12 @@ input::-webkit-inner-spin-button {
 }
 
 @media only screen and (max-width: 700px) {
+	.month:not(:last-child) {
+		margin-bottom: 1.42vw;
+	}
 	.month-content {
-		flex-wrap: nowrap;
-		flex-direction: column;
+		flex-wrap: nowrap !important;
+		flex-direction: column !important;
 	}
 
 	.month-column-item-holder {
@@ -216,14 +231,22 @@ input::-webkit-inner-spin-button {
 	}
 
 	.semester-header-button {
-		margin-right: 2.14vw !important;
+		margin: 0px 2.14vw 0px 0px !important;
 		width: 9.14vw;
 		height: 9.14vw;
+	}
+
+	.semester-header-en > .semester-header-button {
+		margin: 0px 0px 0px 2.14vw !important;
 	}
 
 	.semester-header-button-icon {
 		width: 9.14vw !important;
 		height: 9.14vw !important;
+	}
+
+	.semester {
+		margin-bottom: 5.71vw;
 	}
 
 	/* .semester-header-number {
@@ -242,6 +265,12 @@ input::-webkit-inner-spin-button {
 		height: 9.14vw;
 		font-size: 10vw;
 		padding-top: 1.42vw;
+	}
+
+	.semester-header-en > div:last-child > .semester-header-number {
+		margin: 0.57vw 2.14vw 0px 0px;
+		font-size: 7.14vw;
+		padding-top: 0px;
 	}
 }
 

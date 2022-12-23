@@ -1,0 +1,10 @@
+{
+	"ar": {
+		"day-value-none": "هذا الشهر لا يحتوي على أي إجازات",
+		"semester-finish-message": "تم مرور هذا الفصل الدراسي"
+	},
+	"en": {
+		"day-value-none": "This month does not contain any holidays",
+		"semester-finish-message": "Semester Completed"
+	}
+}

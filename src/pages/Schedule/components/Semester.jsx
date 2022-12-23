@@ -4,9 +4,13 @@ import Month from './Month.jsx';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import useDateHook from 'hooks/DateHook.jsx';
 import calculateTextWidth from 'calculate-text-width';
+import useLocaleHook from 'hooks/LocaleHook.js';
+import { useMainContext } from 'contexts/MainContext.jsx';
 
 export default function Semester(props) {
 	const { hijriMonthEnToAr, fromEnToArInteger, getHijriMonthIndex, getHijriDate } = useDateHook();
+	const { getLocaleKey } = useLocaleHook();
+	const { main } = useMainContext();
 
 	const getLastDate = () => {
 		let lastMonth = props.months[props.months.length - 1];
@@ -44,6 +48,62 @@ export default function Semester(props) {
 		}
 	};
 
+	const getPassedMessage = () => {
+		if (!state.passed) {
+			return <Divider style={{ width: '100%', backgroundColor: '#707070', marginTop: '15px', marginBottom: props.semester == 0 ? '0px' : '10px' }} />;
+		} else {
+			let passedMessage = getLocaleKey(main.language, '/schedule', 'semester-finish-message');
+			return (
+				<div
+					style={{
+						marginTop: `40px`,
+						marginBottom: props.semester == 0 ? '0px' : '10px',
+						position: 'relative',
+						display: 'flex',
+						justifyContent: 'center',
+						alignItems: 'center',
+						flexDirection: 'column',
+						width: '100%',
+						// pointerEvents: 'none',
+					}}
+				>
+					<Divider
+						style={{
+							width: `calc((100% / 2) - ${calculateTextWidth(passedMessage, `${state.warn_size} custom-arabic`) / 2}px - ${state.warn_padding})`,
+							// backgroundColor: 'red',
+							backgroundColor: '#8b0202',
+							position: 'absolute',
+							top: '0',
+							left: '0',
+						}}
+					/>
+					<Divider
+						style={{
+							width: `calc((100% / 2) - ${calculateTextWidth(passedMessage, `${state.warn_size} custom-arabic`) / 2}px - ${state.warn_padding})`,
+							// backgroundColor: 'green',
+							backgroundColor: '#8b0202',
+							position: 'absolute',
+							top: '0',
+							right: '0',
+						}}
+					/>
+					<div
+						style={{
+							position: 'absolute',
+							top: `-${state.warn_size}`,
+							left: `calc(50% - ${calculateTextWidth(passedMessage, `${state.warn_size} custom-arabic`) / 2}px)`,
+							fontSize: state.warn_size,
+							fontFamily: 'custom-arabic',
+							color: '#8b0202',
+						}}
+					>
+						{passedMessage}
+					</div>
+				</div>
+			);
+		}
+	};
+
 	useEffect(() => {
 		onResize();
 
@@ -52,17 +112,18 @@ export default function Semester(props) {
 	}, []);
 
 	const semester_names = ['الفصل الدراسي الأول', 'الفصل الدراسي الثاني', 'الفصل الدراسي الثالث'];
+	const semester_names_en = ['First School Semester', 'Second School Semester', 'Third School Semester'];
 
 	return (
 		<div className='semester' style={{ width: '100%' }}>
 			<div
-				className='semester-header'
+				className={`semester-header ${main.language == 'en' ? ' semester-header-en' : ''}`}
 				style={{
 					fontSize: '50px',
 					color: '#233262',
 					width: '100%',
 					display: 'flex',
-					flexDirection: 'row',
+					flexDirection: main.language == 'en' ? 'row-reverse' : 'row',
 					justifyContent: 'flex-end',
 					alignItems: 'center',
 					// backgroundColor: 'blue',
@@ -81,12 +142,12 @@ export default function Semester(props) {
 				<div
 					style={{
 						display: 'flex',
-						flexDirection: 'row-reverse',
+						flexDirection: main.language == 'en' ? 'row' : 'row-reverse',
 						alignItems: 'center',
 					}}
 				>
 					<div
-						className='semester-header-number'
+						className={`semester-header-number`}
 						style={{
 							// color: '#233262',
 							// color: 'black',
@@ -94,6 +155,7 @@ export default function Semester(props) {
 							color: '#D68C45',
 							fontFamily: 'Arial',
 							fontWeight: 'bolder',
+
 							// lineHeight: '0',
 							border: '1px solid #707070',
 							backgroundColor: 'white',
@@ -103,7 +165,7 @@ export default function Semester(props) {
 							boxSizing: 'border-box',
 						}}
 					>
-						{fromEnToArInteger(props.semester + 1)}
+						{main.language == 'en' ? props.semester + 1 : fromEnToArInteger(props.semester + 1)}
 					</div>
 					{/* <div
 							style={{
@@ -122,7 +184,7 @@ export default function Semester(props) {
 							-{fromEnToArInteger(props.semester + 1)}
 						</div> */}
 
-					<div className='semester-header-title'>{semester_names[props.semester]}</div>
+					<div className='semester-header-title'>{(main.language == 'en' ? semester_names_en : semester_names)[props.semester]}</div>
 				</div>
 			</div>
 			<div
@@ -132,59 +194,11 @@ export default function Semester(props) {
 					position: 'relative',
 				}}
 			>
-				{!state.passed ? (
-					<Divider style={{ width: '100%', backgroundColor: '#707070', marginTop: '15px', marginBottom: props.semester == 0 ? '0px' : '10px' }} />
-				) : (
-					<div
-						style={{
-							marginTop: `40px`,
-							marginBottom: props.semester == 0 ? '0px' : '10px',
-							position: 'relative',
-							display: 'flex',
-							justifyContent: 'center',
-							alignItems: 'center',
-							flexDirection: 'column',
-							width: '100%',
-							// pointerEvents: 'none',
-						}}
-					>
-						<Divider
-							style={{
-								width: `calc((100% / 2) - ${calculateTextWidth('تم مرور هذا الفصل الدراسي', `${state.warn_size} custom-arabic`) / 2}px - ${state.warn_padding})`,
-								// backgroundColor: 'red',
-								backgroundColor: '#8b0202',
-								position: 'absolute',
-								top: '0',
-								left: '0',
-							}}
-						/>
-						<Divider
-							style={{
-								width: `calc((100% / 2) - ${calculateTextWidth('تم مرور هذا الفصل الدراسي', `${state.warn_size} custom-arabic`) / 2}px - ${state.warn_padding})`,
-								// backgroundColor: 'green',
-								backgroundColor: '#8b0202',
-								position: 'absolute',
-								top: '0',
-								right: '0',
-							}}
-						/>
-						<div
-							style={{
-								position: 'absolute',
-								top: `-${state.warn_size}`,
-								left: `calc(50% - ${calculateTextWidth('تم مرور هذا الفصل الدراسي', `${state.warn_size} custom-arabic`) / 2}px)`,
-								fontSize: state.warn_size,
-								fontFamily: 'custom-arabic',
-								color: '#8b0202',
-							}}
-						>
-							تم مرور هذا الفصل الدراسي
-						</div>
-					</div>
-				)}
+				{getPassedMessage()}
+
 				<div>
-					{props.months.map(({ month, columns, monthIndex }) => {
-						return <Month columns={columns} month={hijriMonthEnToAr(month)} monthIndex={monthIndex} />;
+					{props.months.map(({ month, days }) => {
+						return <Month key={`month-${month}-${props.semester}`} semester={props.semester} days={days} month={month} />;
 					})}
 				</div>
 			</div>

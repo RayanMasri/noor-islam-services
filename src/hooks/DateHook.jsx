@@ -47,6 +47,7 @@ export default function useDateHook() {
 		return {
 			en: weekdays_en[date.getDay()],
 			ar: weekdays_ar[date.getDay()],
+			index: date.getDay(),
 		};
 	};
 
@@ -58,15 +59,15 @@ export default function useDateHook() {
 	};
 
 	const hijriMonthEnToAr = (month) => {
-		return hijri_months[month];
+		return hijri_months[month.toLowerCase()];
 	};
 
 	const hijriMonthArToEn = (month) => {
-		return objectFlip(hijri_months)[month];
+		return objectFlip(hijri_months)[month.toLowerCase()];
 	};
 
 	const getHijriMonthIndex = (month) => {
-		return Object.keys(hijri_months).findIndex((x) => x == month) + 1;
+		return Object.keys(hijri_months).findIndex((x) => x == month.toLowerCase()) + 1;
 	};
 
 	const fromEnToArInteger = (integer) => {
