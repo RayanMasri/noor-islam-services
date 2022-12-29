@@ -58,17 +58,17 @@ export default function Header(props) {
 				style={{
 					display: 'flex',
 					alignItems: 'center',
-					flexDirection: 'row-reverse',
+					flexDirection: main.language == 'ar' ? 'row-reverse' : 'row',
 					justifyContent: 'space-between',
 					width: '100%',
 					marginBottom: '5px',
 				}}
 			>
 				<div
-					className='menu-components'
+					className={`menu-components ${main.language == 'en' ? ' menu-components-en' : ''}`}
 					style={{
 						display: 'flex',
-						flexDirection: 'row-reverse',
+						flexDirection: main.language == 'ar' ? 'row-reverse' : 'row',
 					}}
 				>
 					<Menu

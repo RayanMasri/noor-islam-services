@@ -2,17 +2,23 @@ import landingData from 'page-locales/landing-locale.json';
 import barcodeData from 'page-locales/barcode-locale.json';
 import committeeResearcherData from 'page-locales/committee-researcher-locale.json';
 import scheduleData from 'page-locales/schedule-locale.json';
+import committeeListData from 'page-locales/committee-list-locale.json';
+
+import { useMainContext } from 'contexts/MainContext';
 
 const references = {
 	'/': landingData,
 	'/barcode': barcodeData,
 	'/committee-researcher': committeeResearcherData,
 	'/schedule': scheduleData,
+	'/committee-list': committeeListData,
 };
 
 // TODO: Remove prefix of "landing-" in each item of landing-locale.json
 
 export default function useLocaleHook() {
+	const { main } = useMainContext();
+
 	const switchLocale = (locale, page) => {
 		console.log(locale);
 		console.log(page);
@@ -31,8 +37,13 @@ export default function useLocaleHook() {
 		return references[page][locale][key];
 	};
 
+	const getLocaleKeyAuto = (page, key) => {
+		return references[page][main.language][key];
+	};
+
 	return {
 		switchLocale,
 		getLocaleKey,
+		getLocaleKeyAuto,
 	};
 }

@@ -14,9 +14,14 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { fuzzy } from 'fast-fuzzy';
 import json from './remove_later.json';
 import './CommitteeList.css';
+import useLocaleHook from 'hooks/LocaleHook';
+import { useMainContext } from 'contexts/MainContext';
+import transliteration from './transliterated.json';
 
 let classes = ['أول ', 'ثاني ', 'ثالث '];
 let names = ['يوسف مصطفى الأمين', 'أحمد خالد يوسف الدوسري', 'علي جعفر يوسف عللي', 'أبراهيم قلتلي محمد القحطاني'];
+
+// list is locked at the start of every semester, unlocked by env variable
 
 const COMMITTEE_PER_ROW = 3;
 
@@ -27,66 +32,42 @@ const switchables = {
 	'ة': ['ه'],
 };
 
+const years = {
+	'أول': 'First',
+	'ثاني': 'Second',
+	'ثالث': 'Third',
+};
+
 export default function CommitteeList() {
 	const [state, setState] = useState({
 		data: [],
 		visualized: [],
 		search: '',
+		students: [],
 	});
 
+	const { main } = useMainContext();
 	const { getRTLFieldTheme } = useUtilityHook();
 	const { fromEnToArInteger } = useDateHook();
 
-	console.log(json);
-
-	// min -> inclusive, max -> inclusive
-	const getRandomInt = (min, max) => {
-		return Math.floor(Math.random() * (max - min + 1)) + min;
-	};
-
-	const getSudoData = (committees, studentMin, studentMax) => {
-		let data = [];
-		for (let i = 0; i < committees; i++) {
-			let students = getRandomInt(studentMin, studentMax);
-			let studentsArr = [];
-			for (let j = 0; j < students; j++) {
-				studentsArr.push({
-					classyear: `${classes[getRandomInt(0, 2)]} ثانوي`,
-					name: names[getRandomInt(0, names.length - 1)],
-					highlighted: false,
-				});
-			}
-
-			data.push({
-				committee: {
-					value: `اللجنة ${fromEnToArInteger(getRandomInt(0, 100))}`,
-					highlighted: false,
-				},
-				classroom: {
-					value: `الصف ${fromEnToArInteger(getRandomInt(1, 3))}/${fromEnToArInteger(getRandomInt(1, 3))}`,
-					highlighted: false,
-				},
-				students: studentsArr,
-			});
-		}
-		return data;
-	};
-
-	const chunkify = (array, chunkSize) => {
-		let chunks = [];
-		for (let i = 0; i < array.length; i += chunkSize) {
-			chunks.push(array.slice(i, i + chunkSize));
-		}
-		return chunks;
-	};
+	const { switchLocale } = useLocaleHook();
 
 	const organizeRealData = () => {
 		let data = {};
 
-		json.map((student) => {
+		json.map((student, index) => {
 			let info = {
-				name: student['student-name'],
-				classyear: `${student.class.slice(2)} ثانوي`,
+				ar: {
+					name: student['student-name'],
+					classyear: `${student.class.slice(2)} ثانوي`,
+				},
+				en: {
+					name: student['student-name']
+						.split(' ')
+						.map((word) => transliteration[word])
+						.join(' '),
+					classyear: `${years[student.class.slice(2)]} year`,
+				},
 				highlighted: false,
 			};
 
@@ -104,6 +85,7 @@ export default function CommitteeList() {
 		let reorganized = [];
 		for (let [committee, value] of Object.entries(data)) {
 			let classname = value.classname.trim();
+			console.log(classname);
 			if (/\d/.test(classname)) {
 				classname = `الصف ${classname
 					.split('')
@@ -112,9 +94,18 @@ export default function CommitteeList() {
 					.join('')}`;
 			}
 
+			let classnameEn = value.classname.trim();
+			if (/\d/.test(classnameEn)) {
+				classnameEn = `Class ${classnameEn}`;
+			}
+
 			reorganized.push({
-				committee: { value: `اللجنة ${fromEnToArInteger(committee)}`, highlighted: false },
-				classroom: { value: classname, highlighted: false },
+				committee: {
+					ar: `اللجنة ${fromEnToArInteger(committee)}`,
+					en: `Committee ${committee}`,
+					highlighted: false,
+				},
+				classroom: { ar: classname, en: classnameEn, highlighted: false },
 				students: value.students,
 			});
 		}
@@ -124,6 +115,7 @@ export default function CommitteeList() {
 	};
 
 	const normalizeArabic = (string) => {
+		console.log(string);
 		return string
 			.split('')
 			.map((character) => {
@@ -156,6 +148,8 @@ export default function CommitteeList() {
 			});
 		}
 
+		console.log(value);
+
 		let search = value
 			.split(' ')
 			.map((word) => {
@@ -167,14 +161,12 @@ export default function CommitteeList() {
 			})
 			.join(' ');
 
+		console.log(search);
+
 		// switch
 		search = normalizeArabic(search);
-		// console.log(arabicDigitizeString(value));
-		// console.log(
 
-		// );
-
-		// console.log(value);
+		console.log(search);
 		setState({
 			...state,
 			visualized: state.data
@@ -183,14 +175,17 @@ export default function CommitteeList() {
 						...item,
 						committee: {
 							...item.committee,
-							highlighted: item.committee.value.includes(search),
+							highlighted: item.committee[main.language].includes(search),
 						},
 						classroom: {
 							...item.classroom,
-							highlighted: item.classroom.value.includes(search),
+							highlighted: item.classroom[main.language].includes(search),
 						},
 						students: item.students.map((student) => {
-							let name = normalizeArabic(student.name);
+							let { name } = student[main.language];
+
+							name = main.language == 'ar' ? normalizeArabic(name) : name;
+
 							// console.log(`${student.name} ===> ${value} ---> ${fuzzy(value, student.name)}`);
 
 							let words = search
@@ -204,7 +199,7 @@ export default function CommitteeList() {
 											return name.split(' ').some((part) => {
 												// console.log(`${part} -> ${word} -> ${fuzzy(word, part)}`);
 
-												return fuzzy(word, part) > 0.9;
+												return fuzzy(word, part) > 0.7;
 											});
 									  })
 									: false;
@@ -235,7 +230,7 @@ export default function CommitteeList() {
 				.filter((item) => {
 					return item.students.some((student) => student.highlighted) || item.committee.highlighted || item.classroom.highlighted;
 				}),
-			search: arabicDigitizeString(value),
+			search: main.language == 'ar' ? arabicDigitizeString(value) : value,
 		});
 	};
 
@@ -246,11 +241,33 @@ export default function CommitteeList() {
 			data: data,
 			visualized: data,
 		});
+
+		switchLocale(main.language, '/committee-list');
 	}, []);
 
-	useEffect(() => {
-		console.log(state.search);
-	}, [state.search]);
+	const onLanguageChange = (lang) => {
+		// setState({
+		// 	...state,
+		// 	visualized: state.visualized.map((committee) => {
+		// 		return {
+		// 			...committee,
+		// 			students: committee.students.map((student) => {
+		// 				return {
+		// 					...student,
+		// 					name: student[main.language],
+		// 				};
+		// 			}),
+		// 		};
+		// 	}),
+		// });
+		setState({
+			...state,
+			visualized: state.data,
+			search: '',
+		});
+
+		switchLocale(lang, '/schedule');
+	};
 
 	return (
 		<ThemeProvider
@@ -261,18 +278,24 @@ export default function CommitteeList() {
 			<div id='committee-list-page' className='App page'>
 				<div style={{ height: '100%', width: '100%', paddingLeft: '3.125vw', paddingRight: '3.125vw', boxSizing: 'border-box', zIndex: '5' }}>
 					{/* <div style={{ height: '100%', width: '100%', boxSizing: 'border-box', zIndex: '5' }}> */}
-					<Header />
+					<Header onLanguageChange={onLanguageChange} />
 					<div id='committee-list' style={{ marginTop: '30px' }}>
-						<SearchBar onChange={(event) => onSearchChange(event.target.value)} value={state.search} />
+						<SearchBar onChange={(event) => onSearchChange(event.target.value)} value={state.search} direction={main.language == 'ar' ? 'rtl' : 'ltr'} />
 
 						<div className='student-tables'>
 							{state.visualized.map(({ committee, classroom, students }) => {
 								students = students
 									.sort(function (a, b) {
-										if (a.name < b.name) {
+										let { name: nameA } = a[main.language];
+										let { name: nameB } = b[main.language];
+
+										nameA = nameA.toLowerCase();
+										nameB = nameB.toLowerCase();
+
+										if (nameA < nameB) {
 											return -1;
 										}
-										if (a.name > b.name) {
+										if (nameA > nameB) {
 											return 1;
 										}
 										return 0;
@@ -280,14 +303,19 @@ export default function CommitteeList() {
 									.sort((a, b) => (a.highlighted === b.highlighted ? 0 : a.highlighted ? -1 : 1));
 
 								return (
-									<div className='student-table-container'>
+									<div
+										className='student-table-container'
+										style={{
+											alignItems: main.language == 'ar' ? 'flex-end' : 'flex-start',
+										}}
+									>
 										<div
 											className='committee-name'
 											style={{
 												color: committee.highlighted ? 'red' : '#233262',
 											}}
 										>
-											{committee.value}
+											{committee[main.language]}
 										</div>
 										<div
 											className='committee-class'
@@ -295,20 +323,27 @@ export default function CommitteeList() {
 												color: classroom.highlighted ? 'red' : '#233262',
 											}}
 										>
-											{classroom.value}
+											{classroom[main.language]}
 										</div>
-										<div className='student-table'>
+										<div
+											className='student-table'
+											style={{
+												flexDirection: main.language == 'ar' ? 'row-reverse' : 'row',
+											}}
+										>
 											{/* <div className='student-table-item student-table-header'>
 												<div>اسم الطالب</div>
 												<div>الفصل</div>
 											</div> */}
 
-											{students.map(({ name, classyear, highlighted }) => {
+											{students.map((student) => {
+												let { name, classyear } = student[main.language];
+
 												return (
 													<div
-														className='student-table-item'
+														className={`student-table-item${main.language == 'en' ? ' student-table-item-en' : ''}`}
 														style={{
-															color: highlighted ? 'red' : '#233262',
+															color: student.highlighted ? 'red' : '#233262',
 															backgroundColor: 'white',
 															border: '1px solid gray',
 														}}

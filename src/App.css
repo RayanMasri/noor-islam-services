@@ -427,11 +427,12 @@ input::-webkit-inner-spin-button {
 	background: linear-gradient(135deg, rgba(215, 231, 236, 1) 0%, rgba(255, 255, 255, 1) 100%);
 }
 
-.header .menu-components > * {
-	margin-left: 15px;
+.header .menu-components > *:not(:last-child) {
+	margin: 0px 0px 0px 15px;
 }
-.header .menu-components > *:last-child {
-	margin: 0px;
+
+.header .menu-components-en > *:not(:last-child) {
+	margin: 0px 15px 0px 0px;
 }
 
 .select-button {
