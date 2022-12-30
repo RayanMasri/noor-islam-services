@@ -15,6 +15,7 @@ export default function ProductCard(props) {
 				flexDirection: 'column',
 				justifyContent: 'center',
 				alignItems: 'center',
+				fontFamily: 'arabic',
 				...props.style,
 			}}
 			className={props.className}
@@ -87,7 +88,8 @@ export default function ProductCard(props) {
 					style={{
 						backgroundColor: '#E3E3E3',
 						width: '100%',
-						borderRadius: '25px',
+						borderRadius: '15px',
+						marginBottom: '3px',
 						position: 'relative',
 					}}
 				>
@@ -108,7 +110,7 @@ export default function ProductCard(props) {
 						<LockIcon className='product-lock-icon' sx={{ color: 'black' }}></LockIcon>
 					</div>
 
-					<div style={{ color: '#A45000', fontFamily: 'segoeui', textTransform: 'none' }} className='product-card-button-text'>
+					<div style={{ color: '#A45000', fontFamily: 'arabic', textTransform: 'none' }} className='product-card-button-text'>
 						{props.button}
 					</div>
 				</Button>

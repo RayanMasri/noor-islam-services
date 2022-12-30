@@ -15,6 +15,7 @@ export default function ChoiceField(props) {
 		<div
 			style={{
 				width: '100%',
+				fontFamily: 'arabic',
 			}}
 		>
 			<Button
@@ -28,6 +29,7 @@ export default function ChoiceField(props) {
 					flexDirection: props.language == 'ar' ? 'row' : 'row-reverse',
 				}}
 				sx={{
+					fontFamily: 'arabic',
 					padding: props.language == 'ar' ? '0px 10px 0px 5px !important' : '0px 5px 0px 10px !important',
 				}}
 			>

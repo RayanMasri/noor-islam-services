@@ -13,7 +13,7 @@ import { Divider } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { fuzzy } from 'fast-fuzzy';
 import json from './remove_later.json';
-import './CommitteeList.css';
+import './CommitteeList.scss';
 import useLocaleHook from 'hooks/LocaleHook';
 import { useMainContext } from 'contexts/MainContext';
 import transliteration from './transliterated.json';
@@ -68,6 +68,7 @@ export default function CommitteeList() {
 						.join(' '),
 					classyear: `${years[student.class.slice(2)]} year`,
 				},
+				accuracy: 0,
 				highlighted: false,
 			};
 
@@ -115,7 +116,6 @@ export default function CommitteeList() {
 	};
 
 	const normalizeArabic = (string) => {
-		console.log(string);
 		return string
 			.split('')
 			.map((character) => {
@@ -148,8 +148,6 @@ export default function CommitteeList() {
 			});
 		}
 
-		console.log(value);
-
 		let search = value
 			.split(' ')
 			.map((word) => {
@@ -161,12 +159,9 @@ export default function CommitteeList() {
 			})
 			.join(' ');
 
-		console.log(search);
-
 		// switch
 		search = normalizeArabic(search);
 
-		console.log(search);
 		setState({
 			...state,
 			visualized: state.data
@@ -203,6 +198,15 @@ export default function CommitteeList() {
 											});
 									  })
 									: false;
+
+							let accuracy = words.map((word) => {
+								let comparisons = name.split(' ').map((part) => fuzzy(word, part));
+								let average = comparisons.reduce((a, b) => a + b, 0) / comparisons.length;
+
+								return average;
+							});
+
+							accuracy = accuracy.reduce((a, b) => a + b, 0) / accuracy.length;
 							// console.log(`Matching ${value} with ${name} -> ${condition}`);
 							// console.log(value.split(' ').filter((word) => word));
 							// value.split(' ').map((word) => {
@@ -222,6 +226,7 @@ export default function CommitteeList() {
 								...student,
 								// highlighted: student.classyear.includes(value) || student.name.includes(value),
 								// highlighted: fuzzy(value, student.name) > 0.9,
+								accuracy: accuracy,
 								highlighted: condition,
 							};
 						}),
@@ -229,7 +234,24 @@ export default function CommitteeList() {
 				})
 				.filter((item) => {
 					return item.students.some((student) => student.highlighted) || item.committee.highlighted || item.classroom.highlighted;
+				})
+				.sort((a, b) => {
+					return (
+						b.students
+							.map((item) => item.accuracy)
+							.reduce((a, b) => {
+								return Math.max(a, b);
+							}, -1) /
+							b.students.length -
+						a.students
+							.map((item) => item.accuracy)
+							.reduce((a, b) => {
+								return Math.max(a, b);
+							}, -1) /
+							a.students.length
+					);
 				}),
+
 			search: main.language == 'ar' ? arabicDigitizeString(value) : value,
 		});
 	};

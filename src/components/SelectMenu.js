@@ -37,6 +37,8 @@ export default function Menu(props) {
 							onClick={() => props.onChange(option.id)}
 							className={props.selected == option.id ? 'menu-item-selected' : 'menu-item'}
 							sx={{
+								fontFamily: 'arabic',
+
 								justifyContent: `flex-${props.dir == 'rtl' ? 'end' : 'start'} !important`,
 							}}
 						>

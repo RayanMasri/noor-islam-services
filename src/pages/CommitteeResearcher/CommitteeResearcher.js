@@ -532,7 +532,7 @@ export default function Barcode() {
 								wordBreak: 'break-word',
 								width: '100%',
 								textAlign: 'center',
-								fontFamily: 'segoeui',
+								fontFamily: 'arabic',
 							}}
 						></div>
 
@@ -548,7 +548,14 @@ export default function Barcode() {
 								}}
 								onClick={onRequestSearch}
 							>
-								<div data-locale-key='regenerate-btn'>إعادة إنشاء</div>
+								<div
+									data-locale-key='regenerate-btn'
+									style={{
+										fontFamily: 'arabic',
+									}}
+								>
+									إعادة إنشاء
+								</div>
 							</LoadingButton>
 
 							<TextField
@@ -565,6 +572,7 @@ export default function Barcode() {
 									// shrink: true,
 									sx: {
 										fontSize: '20px',
+										fontFamily: 'arabic',
 									},
 								}}
 								InputProps={{
@@ -688,7 +696,7 @@ export default function Barcode() {
 																}}
 																orientation='vertical'
 															/>
-															<span style={{ fontFamily: 'Arial' }}>{value}</span>
+															<span style={{ fontFamily: 'arabic' }}>{value}</span>
 														</div>
 													</div>
 													{index != Object.keys(state.info).length - 1 && <Divider style={{ width: '100%', backgroundColor: '#C4C4C4' }} />}
@@ -753,6 +761,7 @@ export default function Barcode() {
 											width: 'max-content',
 											margin: main.language == 'ar' ? '0px 0px 0px 15px' : '0px 10px 0px 0px',
 											whiteSpace: 'nowrap',
+											fontFamily: 'arabic',
 										}}
 									>
 										نسبة قياس الحجم:
@@ -771,11 +780,17 @@ export default function Barcode() {
 											});
 										}}
 									/>
-									<div style={{ margin: main.language == 'ar' ? '0px 10px 0px 0px' : '0px 0px 0px 15px', textAlign: 'left' }}>{state.scale}%</div>
+									<div style={{ margin: main.language == 'ar' ? '0px 10px 0px 0px' : '0px 0px 0px 15px', textAlign: 'left', fontFamily: 'arabic' }}>{state.scale}%</div>
 								</div>
 
 								<Button className='save-button' variant='contained' onClick={onSave} style={{ width: '100%', textTransform: 'none', display: 'flex', alignItems: 'center' }}>
-									<div data-locale-key='save-button' style={{ lineHeight: '1em' }}>
+									<div
+										data-locale-key='save-button'
+										style={{
+											lineHeight: '1em',
+											fontFamily: 'arabic',
+										}}
+									>
 										حفظ
 									</div>
 								</Button>

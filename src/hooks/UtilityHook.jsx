@@ -29,7 +29,14 @@ export default function useUtilityHook() {
 						root: {
 							left: 'inherit',
 							right: '1.75rem',
+							// right: '1.4rem',
+							// top: '-0.25rem',
 							transformOrigin: 'right',
+							// transition: '0.1s cubic-bezier(0, -0.02, 0, 1) right, 0.1s cubic-bezier(0, -0.02, 0, 1) top',
+						},
+						shrink: {
+							right: '1.4rem',
+							top: '-0.25rem',
 						},
 					},
 				},

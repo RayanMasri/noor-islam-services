@@ -9,6 +9,8 @@ export default function Card(props) {
 			style={{
 				position: 'relative',
 				height: 'max-content',
+				borderRadius: '15px',
+				overflow: 'hidden',
 				...props.style,
 			}}
 			className={props.className}
@@ -64,7 +66,7 @@ export default function Card(props) {
 					width: '100%',
 					backgroundColor: 'white',
 					boxSizing: 'border-box',
-					fontFamily: 'segoeui',
+					fontFamily: 'arabic',
 					display: 'flex',
 					flexDirection: 'column',
 					justifyContent: 'flex-start',

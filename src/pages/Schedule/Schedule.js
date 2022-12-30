@@ -3,7 +3,7 @@ import Header from '../../components/Header.js';
 import { IconButton, Divider } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import Month from './components/Month.jsx';
-import './Schedule.css';
+import './Schedule.scss';
 import { toHijri, toGregorian } from 'hijri-converter';
 // Ramaḍān (the month of fasting), Shawwāl, Dhū al-Qaʿdah, and Dhū al-Ḥijjah.
 import useDateHook from 'hooks/DateHook';

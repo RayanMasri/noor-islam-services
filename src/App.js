@@ -53,7 +53,7 @@ export default function App() {
 					<div
 						style={{
 							color: '#233262',
-							fontFamily: 'segoeui',
+							fontFamily: 'arabic',
 							height: 'max-content',
 							justifyContent: main.language == 'ar' ? 'flex-end' : 'flex-start',
 						}}
@@ -63,6 +63,7 @@ export default function App() {
 							data-locale-key='landing-title'
 							style={{
 								textAlign: main.language == 'ar' ? 'right' : 'left',
+								fontWeight: 'bold',
 							}}
 						>
 							الخدمات الرقمية لمدارس
@@ -74,7 +75,7 @@ export default function App() {
 						data-locale-key='landing-sub-title'
 						style={{
 							color: '#233262',
-							fontFamily: 'segoeui',
+							fontFamily: 'arabic',
 							height: 'max-content',
 							textAlign: main.language == 'ar' ? 'right' : 'left',
 							justifyContent: main.language == 'ar' ? 'flex-end' : 'flex-start',

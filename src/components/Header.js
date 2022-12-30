@@ -62,6 +62,7 @@ export default function Header(props) {
 					justifyContent: 'space-between',
 					width: '100%',
 					marginBottom: '5px',
+					fontFamily: 'arabic',
 				}}
 			>
 				<div
@@ -163,7 +164,7 @@ export default function Header(props) {
 								}}
 							>
 								<PublicIcon sx={{ color: '#243162', mx: '5px' }} />
-								<div style={{ fontFamily: 'segoeui', color: '#243162', textTransform: 'none' }}>{LANGUAGES[main.language]}</div>
+								<div style={{ fontFamily: 'arabic', color: '#243162', textTransform: 'none' }}>{LANGUAGES[main.language]}</div>
 							</div>
 							<KeyboardArrowDownIcon />
 						</Button>
